@@ -7,6 +7,12 @@ public class Hexagon {
         
     }
 
+    public Hexagon(int q, int r, int s) {
+        this.q = q;
+        this.r = r;
+        this.s = s;
+    }
+
     public Hexagon add(Hexagon a) {
         return new Hexagon(q,r,s);
     }

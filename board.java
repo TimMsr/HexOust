@@ -19,6 +19,7 @@ public class board {
         return blueGroups;
     }
 
+    
     public static void main(String[] args) {
         
 
