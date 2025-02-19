@@ -41,14 +41,21 @@ public class Hexagon {
         return false;
     }
 
+
+    public Hexagon subtract(Hexagon b)
+    {
+        return new Hexagon(q - b.q, r - b.r, s - b.s);
+    }
+
     public int length() {
-        return 0;
+        return (int) ((Math.abs(q) + Math.abs(r) + Math.abs(s)) / 2);
     }
 
-    public int distance(Hexagon a) {
-        return 0;
+    public int distance(Hexagon b) {
+        return subtract(b).length();
     }
 
+    
 
 
 
