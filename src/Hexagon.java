@@ -1,3 +1,4 @@
+package src;
 public class Hexagon {
     private int q;
     private int r;
