@@ -7,11 +7,11 @@ public class Hexagon {
         
     }
 
-    public add(Hexagon a) {
+    public Hexagon add(Hexagon a) {
         return new Hexagon(q,r,s);
     }
 
-    public remove(Hexagon a) {
+    public void remove(Hexagon a) {
         
     }
 
@@ -33,6 +33,20 @@ public class Hexagon {
         }
         return false;
     }
+
+    public int length() {
+        return 0;
+    }
+
+    public int distance(Hexagon a) {
+        return 0;
+    }
+
+
+
+
+
+
 
 
 }
