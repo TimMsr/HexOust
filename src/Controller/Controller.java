@@ -1,35 +1,39 @@
 package Controller;
 
 import Model.Board;
+import View.GUI;
 
 public class Controller {
     private Board board;
     private String currentPlayer;
     private String gameState;
+    private GUI gui;
 
     public Controller() {
-        board = new Board();
-        currentPlayer = "Red"; // Default starting player
-        gameState = "Playing";
-    }
-
-    public void startGame() {
-        System.out.println("Game Started!");
+        this.board = new Board();
+        this.currentPlayer = "RED"; // Game starts with RED
+        this.gameState = "Playing";
     }
 
     public void switchTurn() {
-        currentPlayer = currentPlayer.equals("Red") ? "Blue" : "Red";
+        // Switch between Players
+        currentPlayer = currentPlayer.equals("RED") ? "BLUE" : "RED";
+
+        // Change in GUI
+        if (gui != null) {
+            gui.updateTurnIndicator();
+        }
     }
 
-    public boolean checkWin() {
-        return false; // Implement win condition logic later
+    public String getCurrentPlayer() {
+        return currentPlayer;
     }
 
     public Board getBoard() {
         return board;
     }
 
-    public String getCurrentPlayer() {
-        return currentPlayer;
+    public void setGUI(GUI gui) {
+        this.gui = gui;
     }
 }
