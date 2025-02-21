@@ -30,11 +30,22 @@ public class Hexagon {
         return subtract(b).length();
     }
 
+    //There are six possible movement diretions in a hex grid.
+    //Every direction is repr as a Hexagon with cube coordinates (q, r, s).
+    // The sum of q, r, and s has to be 0.
     public static final Hexagon[] DIRECTIONS = {
-            new Hexagon(1, 0, -1), new Hexagon(1, -1, 0), new Hexagon(0, -1, 1),
-            new Hexagon(-1, 0, 1), new Hexagon(-1, 1, 0), new Hexagon(0, 1, -1)
+            new Hexagon(1, 0, -1),  // Right
+            new Hexagon(1, -1, 0),  // Top-Right
+            new Hexagon(0, -1, 1),  // Top-Left
+            new Hexagon(-1, 0, 1),  // Left
+            new Hexagon(-1, 1, 0),  // Bottom-Left
+            new Hexagon(0, 1, -1)   // Bottom-Right
     };
 
+
+    // Returns the movement direction corresponding to the given index.
+    // The index must be between 0 and 5, representing the 6 directions
+    // E.g. Hexagon newHex = currentHex.add(Hexagon.direction(0)); - Moves right
     public static Hexagon direction(int dir) {
         return DIRECTIONS[dir];
     }
