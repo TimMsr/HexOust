@@ -1,8 +1,6 @@
 package Controller;
 
-import Model.board;
-import Model.Hexagon;
-import View.GUI;
+import Model.Board;
 
 public class Controller {
     private Board board;
