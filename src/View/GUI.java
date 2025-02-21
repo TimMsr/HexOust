@@ -1,5 +1,8 @@
 package View;
 
+import Model.Board;
+import Controller.Controller;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -29,19 +32,26 @@ public class GUI {
         statusLabel = new JLabel("Current Player: " + controller.getCurrentPlayer());
         frame.add(statusLabel, BorderLayout.NORTH);
         frame.add(panel, BorderLayout.CENTER);
-        
+
         frame.setVisible(true);
     }
 
     private void drawBoard(Graphics g) {
         int hexSize = 30;
-        int xOffset = 300;
+        int cols = 7; // Number of hexagons per row
+        int rows = 7; // Number of hexagons per column
+        int xOffset = 100; // Start position for hexagons
         int yOffset = 100;
 
-        for (int q = -3; q <= 3; q++) {
-            for (int r = -3; r <= 3; r++) {
-                int x = xOffset + hexSize * (q * 3 / 2);
-                int y = yOffset + hexSize * (int) (Math.sqrt(3) * (r + q / 2.0));
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                int x = xOffset + (int) (col * 1.5 * hexSize);
+                int y = yOffset + (int) (row * Math.sqrt(3) * hexSize);
+
+                // Stagger odd rows
+                if (col % 2 == 1) {
+                    y += (int) (Math.sqrt(3) / 2 * hexSize);
+                }
 
                 drawHexagon(g, x, y, hexSize);
             }
