@@ -2,12 +2,12 @@ package Model;
 
 import java.util.ArrayList;
 
-public class board {
+public class Board {
     private ArrayList<ArrayList<Hexagon>> hexagons;
     private ArrayList<ArrayList<Hexagon>> redGroups;
     private ArrayList<ArrayList<Hexagon>> blueGroups;
 
-    public board() {
+    public Board() {
         hexagons = new ArrayList<ArrayList<Hexagon>>();
         redGroups = new ArrayList<ArrayList<Hexagon>>();
         blueGroups = new ArrayList<ArrayList<Hexagon>>();
@@ -19,11 +19,5 @@ public class board {
 
     public ArrayList<ArrayList<Hexagon>> getBlueGroups() {
         return blueGroups;
-    }
-
-    
-    public static void main(String[] args) {
-        
-
     }
 }
