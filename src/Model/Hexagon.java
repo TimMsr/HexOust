@@ -34,12 +34,12 @@ public class Hexagon {
     //Every direction is repr as a Hexagon with cube coordinates (q, r, s).
     // The sum of q, r, and s has to be 0.
     public static final Hexagon[] DIRECTIONS = {
-            new Hexagon(1, 0, -1),  // Right
-            new Hexagon(1, -1, 0),  // Top-Right
-            new Hexagon(0, -1, 1),  // Top-Left
-            new Hexagon(-1, 0, 1),  // Left
-            new Hexagon(-1, 1, 0),  // Bottom-Left
-            new Hexagon(0, 1, -1)   // Bottom-Right
+            new Hexagon(1, 0, -1),  // Right        0
+            new Hexagon(1, -1, 0),  // Top-Right    1
+            new Hexagon(0, -1, 1),  // Top-Left     2
+            new Hexagon(-1, 0, 1),  // Left         3
+            new Hexagon(-1, 1, 0),  // Bottom-Left  4
+            new Hexagon(0, 1, -1)   // Bottom-Right 5
     };
 
 
