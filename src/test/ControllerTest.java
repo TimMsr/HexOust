@@ -1,6 +1,7 @@
 package test;
 
 import Controller.Controller;
+import View.GUI;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,20 +10,54 @@ public class ControllerTest {
     // Tests that when the controller is created the current player is RED
     @Test
     void testStartGameRed() {
-        Controller controller = new Controller();
-
-        assertEquals("RED", controller.getCurrentPlayer());
+        Controller c = new Controller();
+        assertEquals("RED", c.getCurrentPlayer());
     }
 
-    // Tests functionality of switchTurn()
     @Test
     void testSwitchTurn() {
-        Controller controller = new Controller();
+        Controller c = new Controller();
+        // Start RED
+        assertEquals("RED", c.getCurrentPlayer());
 
-        assertEquals("RED", controller.getCurrentPlayer()); // Test the current player is RED first
-        controller.switchTurn();
-        assertEquals("BLUE", controller.getCurrentPlayer()); // After switchTurn(), player is BLUE
-        controller.switchTurn();
-        assertEquals("RED", controller.getCurrentPlayer()); // switchTurn() cycles back to RED
+        // Switch BLUE
+        c.switchTurn();
+        assertEquals("BLUE", c.getCurrentPlayer());
+
+        // Switching RED
+        c.switchTurn();
+        assertEquals("RED", c.getCurrentPlayer());
     }
+
+    @Test
+    void testGetBoard() {
+        Controller c = new Controller();
+        assertNotNull(c.getBoard());
+    }
+
+
+
+    // test if updateTurnIndicator() is invoked
+    private static class DummyGUI extends GUI {
+        boolean updateCalled = false;
+
+        public DummyGUI(Controller c) {
+            super(c);
+        }
+        @Override
+        public void updateTurnIndicator() {
+            updateCalled = true;
+        }
+    }
+    @Test
+    void testSwitchTurnUpdatesGUI() {
+        Controller c = new Controller();
+        DummyGUI dummyGUI = new DummyGUI(c);
+        c.setGUI(dummyGUI);
+
+        // Switch turn => should call dummyGUI.updateTurnIndicator()
+        c.switchTurn();
+        assertTrue(dummyGUI.updateCalled);
+    }
+
 }

@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HexagonTest {
 
     @Test
-    void validHexagonCreation() {
+    void validHexCreation() {
         Hexagon h = new Hexagon(1, -1, 0);
         // (q + r + s == 0)
         assertEquals(1, h.q);
@@ -16,7 +16,7 @@ public class HexagonTest {
     }
 
     @Test
-    void invalidHexagonCreationThrowsException() {
+    void invalidHexCreation() {
         // (q + r + s != 0)
         assertThrows(IllegalArgumentException.class, () -> {
             new Hexagon(1, 1, 1);

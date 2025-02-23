@@ -1,33 +1,63 @@
-// package Board;
 package test;
+
 import Model.Board;
 import Model.Hexagon;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.*;
 
 public class BoardTest {
 
-    // Test to ensure the board remains the right size whenever initialized
     @Test
-    void boardSize_Returns_127() {
+    void boardSize(){
         Board board = new Board();
-
-        assertEquals(127, board.getHexagons().size());
+        ArrayList<Hexagon> hexagons = board.getHexagons();
+        assertEquals(127, hexagons.size());
     }
 
     @Test
-    void getHexagons_ReturnsArrayListOfHexagons() {
+    void getHexagons() {
         Board board = new Board();
-
         ArrayList<Hexagon> hexagons = board.getHexagons();
+        assertNotNull(hexagons); // list should have hexagons
 
-        assertNotNull(hexagons); // Assert the arrayList is not null
+        for (Hexagon h : hexagons) {
+            // hexagons should have properties
+            assertNotNull(h);
+            // Board should create valid hexagons (q+r+s == 0)
+            assertEquals(0, h.q + h.r + h.s);
+        }
+    }
 
-        for (Object obj : hexagons) {
-            assertInstanceOf(Hexagon.class, obj); // Make sure every element in the list is a Hexagon
+    // Check for origin hexagon (0,0,0)
+    @Test
+    void boardContainsCenterHexagon() {
+        Board board = new Board();
+        ArrayList<Hexagon> hexagons = board.getHexagons();
+        boolean centerFound = false;
+
+        for (Hexagon h : hexagons) {
+            if (h.q == 0 && h.r == 0 && h.s == 0) {
+                centerFound = true;
+                break;
+            }
+        }
+        assertTrue(centerFound);
+    }
+
+    // No hexagons with dupe coords
+    @Test
+    void noDuplicateHexagons() {
+        Board board = new Board();
+        ArrayList<Hexagon> hexagons = board.getHexagons();
+        Set<String> coordinateSet = new HashSet<>();
+
+        for (Hexagon h : hexagons) {
+            // check set, unique coords as key
+            String key = h.q + "," + h.r+ "," + h.s;
+
+            assertFalse(coordinateSet.contains(key), "Found duplicate: " + key);
+            coordinateSet.add(key);
         }
     }
 }
