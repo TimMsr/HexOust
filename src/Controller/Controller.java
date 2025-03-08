@@ -1,6 +1,7 @@
 package Controller;
 
 import Model.Board;
+import Model.Hexagon;
 import View.GUI;
 
 public class Controller {
@@ -13,6 +14,17 @@ public class Controller {
         this.board = new Board();
         this.currentPlayer = "RED"; // Game starts with RED
         this.gameState = "Playing";
+    }
+
+    // Will be adding major changes to this method.
+    // Future; check capture, check win.
+    public void handleMove(Hexagon hex) {
+        if (hex.getOwner() == null) {
+            hex.setOwner(currentPlayer);
+            switchTurn();
+        } else {
+            throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
+        }
     }
 
     public void switchTurn() {

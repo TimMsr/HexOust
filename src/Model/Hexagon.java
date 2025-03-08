@@ -4,6 +4,7 @@ public class Hexagon {
     public int q;
     public int r;
     public int s;
+    private String owner; // Red, Blue, Null(if empty)
 
     public Hexagon(int q, int r, int s) {
         if (q + r + s != 0) {
@@ -12,6 +13,15 @@ public class Hexagon {
         this.q = q;
         this.r = r;
         this.s = s;
+        this.owner = null;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public Hexagon add(Hexagon b) {
@@ -52,5 +62,11 @@ public class Hexagon {
 
     public Hexagon neighbor(int dir) {
         return add(direction(dir));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Hexagon[q:%d, r:%d, s:%d, owner:%s]",
+                q, r, s, (owner == null ? "none" : owner));
     }
 }

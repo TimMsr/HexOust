@@ -1,4 +1,4 @@
-package test;
+package Test;
 
 import Model.Hexagon;
 import org.junit.jupiter.api.Test;

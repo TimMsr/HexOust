@@ -6,11 +6,16 @@ import Controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+
 
 public class GUI extends JFrame {
     private Board board;
     private Controller controller;
     private JLabel statusLabel;
+    private JLabel errorLabel;
+
+    // Change sizing
     private final int HEX_SIZE = 40;
     private final int WIDTH = 1000;
     private final int HEIGHT = 1000;
@@ -30,6 +35,13 @@ public class GUI extends JFrame {
         statusLabel.setFont(new Font("Arial", Font.BOLD, 16));
         add(statusLabel, BorderLayout.NORTH); // Place it at the top of the GUI
 
+        // Error label at the bottom for invalid moves.
+        errorLabel = new JLabel("", SwingConstants.CENTER);
+        errorLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        errorLabel.setForeground(Color.RED);
+        add(errorLabel, BorderLayout.SOUTH);
+
+        // Drawing panel for board
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -39,50 +51,78 @@ public class GUI extends JFrame {
         };
         panel.setPreferredSize(new Dimension(WIDTH, HEIGHT)); // Ensures that Panel matches window size
         add(panel, BorderLayout.CENTER);
+
+        // Mouse listener to handle clicks on the board.
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent pos) {
+                int clickX = pos.getX();
+                int clickY = pos.getY();
+
+                Hexagon clickedHex = board.getHexagonAt(clickX, clickY);
+                if (clickedHex != null) { // clickedHex is null if not found
+                    try {
+                        controller.handleMove(clickedHex);
+                        // Valid move, clear any previous error.
+                        errorLabel.setText("");
+                    } catch (IllegalArgumentException ex) {
+                        // Invalid move, display error message at bottom.
+                        errorLabel.setText("Invalid Cell Placement -> " + clickedHex);
+                    }
+                    repaint();
+                }
+            }
+        });
     }
 
+    // Draws the board by converting hex coordinates to pixel positions.
     private void drawBoard(Graphics g) {
-        // Graphic Quality ensuring below
-        Graphics2D g2d = (Graphics2D) g; // Converts Graphics g to Graphics2D (g2d) for smoother drawing.
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // Turns on antialiasing
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int centerX = WIDTH / 2;
         int centerY = HEIGHT / 2;
 
-        // Loop below, loops through every hexagon, converting hex points to pixel points
         for (Hexagon hex : board.getHexagons()) {
-            Point p = hexToPixel(hex);
-            drawHexagon(g2d, centerX + (int) p.x, centerY + (int) p.y);
+            Point p = hexToPixel(hex, centerX, centerY);
+            drawHexagon(g2d, p.x, p.y, hex);
         }
     }
 
-    // Method to convert hex points to pixel points on screen
-    private Point hexToPixel(Hexagon hex) {
+    // Converts a hexagon's cube coordinates to its pixel center.
+    private Point hexToPixel(Hexagon hex, int centerX, int centerY) {
         double x = HEX_SIZE * (3.0 / 2 * hex.q);
         double y = HEX_SIZE * (Math.sqrt(3) * (hex.r + hex.q / 2.0));
-        return new Point((int)x, (int)y); // Returns the screen position
+        return new Point((int)(centerX + x), (int)(centerY + y));
     }
 
-    private void drawHexagon(Graphics2D g2d, int x, int y) {
-        // 2 Arrays to store the corners of the games (6 corners)
+    // Draws a single hexagon. If a stone is present, fills it with the corresponding color.
+    private void drawHexagon(Graphics2D g2d, int x, int y, Hexagon hex) {
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
 
-        // Loop to calculate the corners of the hexagons (loops through the 6 corners), and rotates by 60 degrees
         for (int i = 0; i < 6; i++) {
             double angle = Math.toRadians(60 * i);
             xPoints[i] = (int) (x + HEX_SIZE * Math.cos(angle));
             yPoints[i] = (int) (y + HEX_SIZE * Math.sin(angle));
         }
 
-        g2d.setColor(Color.LIGHT_GRAY); // Sets fill color
-        g2d.fillPolygon(xPoints, yPoints, 6); // Fills
-        g2d.setColor(Color.BLACK); // Sets border color
-        g2d.drawPolygon(xPoints, yPoints, 6); // Draws border color
+        // Set colour of hexagon
+        if (hex.getOwner() == null) {
+            g2d.setColor(Color.LIGHT_GRAY);
+        } else if (hex.getOwner().equals("RED")) {
+            g2d.setColor(Color.RED);
+        } else if (hex.getOwner().equals("BLUE")) {
+            g2d.setColor(Color.BLUE);
+        }
+        g2d.fillPolygon(xPoints, yPoints, 6);
+        g2d.setColor(Color.BLACK);
+        g2d.drawPolygon(xPoints, yPoints, 6);
     }
 
+
+
     public void updateTurnIndicator() {
-        //Get cur player from Controller and update label
         statusLabel.setText("Current Turn: " + controller.getCurrentPlayer());
     }
 
@@ -93,7 +133,6 @@ public class GUI extends JFrame {
     public static void main(String[] args) {
         Controller controller = new Controller();
         GUI gui = new GUI(controller);
-
         controller.setGUI(gui); // Link the GUI to the Controller
         gui.start();
     }
