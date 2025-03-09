@@ -29,14 +29,14 @@ public class Board {
     }
 
     /*
-     * Finds the hexagon that was clicked, based on pixel coords [x,y]
+     * Finds the hexagon that was clicked on the board, based on pixel coords [x,y]
      * Same size param as GUI.
      */
     public Hexagon getHexagonAt(int x, int y) {
         // *Change params below when we resize board*
-        int centerX = 1000 / 2;
-        int centerY = 1000 / 2;
-        int hexSize = 40;
+        int centerX = 750 / 2;
+        int centerY = 750 / 2;
+        int hexSize = 30;
 
         // Loop over all hexagons
         for (Hexagon hex : hexagons) {

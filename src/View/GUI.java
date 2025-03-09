@@ -16,9 +16,9 @@ public class GUI extends JFrame {
     private JLabel errorLabel;
 
     // Change sizing
-    private final int HEX_SIZE = 40;
-    private final int WIDTH = 1000;
-    private final int HEIGHT = 1000;
+    private final int HEX_SIZE = 30;
+    private final int WIDTH = 750;
+    private final int HEIGHT = 750;
 
     public GUI(Controller controller) {
         this.controller = controller;
@@ -32,12 +32,12 @@ public class GUI extends JFrame {
 
         // Create a status label for turn indicator
         statusLabel = new JLabel("Current Turn: " + controller.getCurrentPlayer(), SwingConstants.CENTER);
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        statusLabel.setFont(new Font("Arial", Font.BOLD, 18));
         add(statusLabel, BorderLayout.NORTH); // Place it at the top of the GUI
 
         // Error label at the bottom for invalid moves.
         errorLabel = new JLabel("", SwingConstants.CENTER);
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        errorLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         errorLabel.setForeground(Color.RED);
         add(errorLabel, BorderLayout.SOUTH);
 
@@ -69,6 +69,7 @@ public class GUI extends JFrame {
                         // Invalid move, display error message at bottom.
                         errorLabel.setText("Invalid Cell Placement -> " + clickedHex);
                     }
+                    // Reflect any changes to graphical board
                     repaint();
                 }
             }
@@ -116,6 +117,7 @@ public class GUI extends JFrame {
             g2d.setColor(Color.BLUE);
         }
         g2d.fillPolygon(xPoints, yPoints, 6);
+        // Outline is black
         g2d.setColor(Color.BLACK);
         g2d.drawPolygon(xPoints, yPoints, 6);
     }
@@ -133,7 +135,7 @@ public class GUI extends JFrame {
     public static void main(String[] args) {
         Controller controller = new Controller();
         GUI gui = new GUI(controller);
-        controller.setGUI(gui); // Link the GUI to the Controller
+        controller.setGUI(gui); // Link GUI to the Controller (two-way interaction)
         gui.start();
     }
 }
