@@ -60,4 +60,18 @@ public class BoardTest {
             coordinateSet.add(key);
         }
     }
+
+    @Test
+    void testGetHexagonAt() {
+        Board board = new Board();
+        // The board is centered at 375, 375 with a hex size of 30
+
+        // Center hex at x:375, y:375, should return a hexagon
+        Hexagon h1 = board.getHexagonAt(375, 375);
+        assertInstanceOf(Hexagon.class, h1);
+
+        // Origin is outside of board, therefore no hexagon should be returned at 0, 0
+        Hexagon h2 = board.getHexagonAt(0, 0);
+        assertNull(h2);
+    }
 }
