@@ -132,4 +132,19 @@ public class HexagonTest {
         assertEquals(1, n5.r);
         assertEquals(-1, n5.s);
     }
+
+    @Test
+    void testToString() {
+        Hexagon h1 = new Hexagon(1, -1, 0);
+        Hexagon h2 = new Hexagon(0, 1, -1);
+        Hexagon h3 = new Hexagon(1, -1, 0);
+
+        assertEquals("Hexagon[q:1, r:-1, s:0, owner:none]", h1.toString());
+
+        h2.setOwner("RED");
+        assertEquals("Hexagon[q:0, r:1, s:-1, owner:RED]", h2.toString());
+
+        h3.setOwner("BLUE");
+        assertEquals("Hexagon[q:1, r:-1, s:0, owner:BLUE]", h3.toString());
+    }
 }
