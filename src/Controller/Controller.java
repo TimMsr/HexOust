@@ -22,7 +22,7 @@ public class Controller {
         if (hex.getOwner() != null) {
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
 
-        } else if (checkNearbyHexOwner(hex) == 1) {
+        } else if (ownsNeighbor(hex)) {
             // Invalid, Neighbor owned by currentPLayer
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
 
@@ -36,9 +36,9 @@ public class Controller {
     /**
      * Method to check if a Hexagons neighbors are owned by currentPlayer
      * @param hex
-     * @return 1=invalid, 0=valid
+     * @return bool
      */
-    public int checkNearbyHexOwner(Hexagon hex) {
+    public boolean ownsNeighbor(Hexagon hex) {
         // check 6 nearby Hex
         for (int i = 0; i < 6; i++) {
             Hexagon neighbor = hex.neighbor(i);
@@ -51,13 +51,13 @@ public class Controller {
 
                     // Invalid move, neighbor owned by currentPlayer
                     if (currentPlayer.equals(targetNeighbor.getOwner())) {
-                        return 1;
+                        return true;
                     }
                     break; // Neighbor valid, check next neighbor
                 }
             }
         }
-        return 0;
+        return false;
     }
 
     public void switchTurn() {
