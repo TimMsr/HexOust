@@ -19,12 +19,45 @@ public class Controller {
     // Will be adding major changes to this method.
     // Future; check capture, check win.
     public void handleMove(Hexagon hex) {
-        if (hex.getOwner() == null) {
+        if (hex.getOwner() != null) {
+            throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
+
+        } else if (checkNearbyHexOwner(hex) == 1) {
+            // Invalid, Neighbor owned by currentPLayer
+            throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
+
+        } else {
+            // Valid hex placement
             hex.setOwner(currentPlayer);
             switchTurn();
-        } else {
-            throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
         }
+    }
+
+    /**
+     * Method to check if a Hexagons neighbors are owned by currentPlayer
+     * @param hex
+     * @return 1=invalid, 0=valid
+     */
+    public int checkNearbyHexOwner(Hexagon hex) {
+        // check 6 nearby Hex
+        for (int i = 0; i < 6; i++) {
+            Hexagon neighbor = hex.neighbor(i);
+
+            // Search board for neighbor's coords
+            for (Hexagon targetNeighbor : board.getHexagons()) {
+                if (targetNeighbor.q == neighbor.q &&
+                    targetNeighbor.r == neighbor.r &&
+                    targetNeighbor.s == neighbor.s) {
+
+                    // Invalid move, neighbor owned by currentPlayer
+                    if (currentPlayer.equals(targetNeighbor.getOwner())) {
+                        return 1;
+                    }
+                    break; // Neighbor valid, check next neighbor
+                }
+            }
+        }
+        return 0;
     }
 
     public void switchTurn() {

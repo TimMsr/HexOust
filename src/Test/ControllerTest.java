@@ -1,6 +1,7 @@
 package Test;
 
 import Controller.Controller;
+import Model.Hexagon;
 import View.GUI;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -102,6 +103,7 @@ public class ControllerTest {
         Controller c = new Controller();
 
         // Passing a null value should throw an NullPointerException
+        //noinspection DataFlowIssue - suppression
         assertThrows(NullPointerException.class, () -> c.handleMove(null));
     }
 }
