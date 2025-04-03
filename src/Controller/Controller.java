@@ -3,9 +3,8 @@ package Controller;
 import Model.Board;
 import Model.Hexagon;
 import View.GUI;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+
+import java.util.*;
 
 public class Controller {
     private Board board;
@@ -27,7 +26,8 @@ public class Controller {
         if (hex.getOwner() != null) {
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
         }
-        boolean capMove = captureMove(hex);
+        // Look for hexagons to capture, return true if captured hexagons are erased
+        boolean capMove = eraseHexagons((captureMove(hex)));
 
         if (ownsNeighbor(hex) && !capMove) {
             // If the hex is adjacent to one of the current player's hexagons but does not create a capture,
@@ -41,8 +41,7 @@ public class Controller {
             if (!capMove) {
                 switchTurn();
             }
-
-            // Cap move testing in terminal
+            // Capture move testing in terminal
             System.out.println("CP Move: " + capMove);
         }
     }
@@ -77,9 +76,13 @@ public class Controller {
     /**
      * Compares nearby grouped hexagons and their owners to check for a capture move.
      * @param placedHex The hexagon that may invoke a capture move
-     * @return true if capture move, false otherwise
+     * @return HashSet of all capture hexagons to erase.
      */
-    public boolean captureMove(Hexagon placedHex) {
+    public HashSet<Hexagon> captureMove(Hexagon placedHex) {
+        // todo
+        // Group of captured hexagons to return
+        HashSet<Hexagon> capturedSet = new HashSet<>();
+
         // Simulate placing hex by currentPlayer.
         placedHex.setOwner(currentPlayer);
         // Compute the connected group of currentPlayer.
@@ -103,12 +106,9 @@ public class Controller {
                     processedOpponents.addAll(opponentGroup);
 
                     // If the current player's group (including the new hex) is larger,
-                    // capture the opponent group.
+                    // add the opponents group to the captured set (so we can erase later).
                     if (currentGroup.size() > opponentGroup.size()) {
-                        for (Hexagon captured : opponentGroup) {
-                            captured.setOwner(null);
-                        }
-                        captureOccurred = true;
+                        capturedSet.addAll(opponentGroup);
                     }
                 }
             }
@@ -116,7 +116,7 @@ public class Controller {
         // -- End of simulation --
         // Reset the placed hex's owner
         placedHex.setOwner(null);
-        return captureOccurred;
+        return capturedSet;
     }
 
 
@@ -161,6 +161,41 @@ public class Controller {
         }
         return null;
     }
+
+    /**
+     * Erases all captured hexagons from the board.
+     * @param captured hashset of capture hexagons to erase.
+     * @return True if hexagons are erased, false otherwise.
+     */
+    private boolean eraseHexagons(HashSet<Hexagon> captured) {
+        boolean captureOccurred = false;
+        for (Hexagon hex : captured) {
+            hex.setOwner(null);
+            captureOccurred = true;
+        }
+        return captureOccurred;
+    }
+
+
+    /**
+     * Makes a list of all valid moves the currentPLayer can make on the board
+     * @return List of the valid hexagons the current player can choose.
+     */
+    public List<Hexagon> getValidMoves() {
+        List<Hexagon> validMoves = new ArrayList<>();
+        for (Hexagon hex : board.getHexagons()) {
+            // Hex must be unowned to be valid.
+            if (hex.getOwner() == null) {
+                // A hex is valid if either it is not adjacent to any of the current player's hexagons
+                // OR if it creates a capture opportunity when placed.
+                if (ownsNeighbor(hex) == !captureMove(hex).isEmpty()) {
+                    validMoves.add(hex);
+                }
+            }
+        }
+        return validMoves;
+    }
+
 
     public void switchTurn() {
         // Switch between Players

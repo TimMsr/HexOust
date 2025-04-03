@@ -7,6 +7,7 @@ import Controller.Controller;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 
 public class GUI extends JFrame {
@@ -84,9 +85,12 @@ public class GUI extends JFrame {
         int centerX = WIDTH / 2;
         int centerY = HEIGHT / 2;
 
+        // Get the list of valid moves from the controller.
+        List<Hexagon> validMoves = controller.getValidMoves();
+
         for (Hexagon hex : board.getHexagons()) {
             Point p = hexToPixel(hex, centerX, centerY);
-            drawHexagon(g2d, p.x, p.y, hex);
+            drawHexagon(g2d, p.x, p.y, hex, validMoves);
         }
     }
 
@@ -98,7 +102,7 @@ public class GUI extends JFrame {
     }
 
     // Draws a single hexagon. If a stone is present, fills it with the corresponding color.
-    private void drawHexagon(Graphics2D g2d, int x, int y, Hexagon hex) {
+    private void drawHexagon(Graphics2D g2d, int x, int y, Hexagon hex, List<Hexagon> validMoves) {
         int[] xPoints = new int[6];
         int[] yPoints = new int[6];
 
@@ -108,16 +112,21 @@ public class GUI extends JFrame {
             yPoints[i] = (int) (y + HEX_SIZE * Math.sin(angle));
         }
 
-        // Set colour of hexagon
+        // Choose fill color:
         if (hex.getOwner() == null) {
-            g2d.setColor(Color.LIGHT_GRAY);
+            if (validMoves.contains(hex)) {
+                // Highlight valid moves in yellow.
+                g2d.setColor(Color.lightGray);
+            } else {
+                g2d.setColor(Color.gray);
+            }
         } else if (hex.getOwner().equals("RED")) {
             g2d.setColor(Color.RED);
         } else if (hex.getOwner().equals("BLUE")) {
             g2d.setColor(Color.BLUE);
         }
         g2d.fillPolygon(xPoints, yPoints, 6);
-        // Outline is black
+        // Draw outline in black.
         g2d.setColor(Color.BLACK);
         g2d.drawPolygon(xPoints, yPoints, 6);
     }
