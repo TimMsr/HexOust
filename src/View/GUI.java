@@ -64,8 +64,10 @@ public class GUI extends JFrame {
                 if (clickedHex != null) { // clickedHex is null if not found
                     try {
                         controller.handleMove(clickedHex);
-                        // Valid move, clear any previous error.
-                        errorLabel.setText("");
+                        // Clear the error only if it doesn't already contain a pass-turn message.
+                        if (!errorLabel.getText().startsWith("No valid moves available")) {
+                            errorLabel.setText("");
+                        }
                     } catch (IllegalArgumentException ex) {
                         // Invalid move, display error message at bottom.
                         errorLabel.setText("Invalid Cell Placement -> " + clickedHex);
@@ -113,24 +115,43 @@ public class GUI extends JFrame {
         }
 
         // Choose fill color:
+        // Unowned hexagons
         if (hex.getOwner() == null) {
+            // Query validMoves list for invalid/valid
             if (validMoves.contains(hex)) {
-                // Highlight valid moves in yellow.
+                // Color valid moves in light gray.
                 g2d.setColor(Color.lightGray);
             } else {
+                // Color invalid moves gray
                 g2d.setColor(Color.gray);
             }
+            // Owned hexagons
         } else if (hex.getOwner().equals("RED")) {
             g2d.setColor(Color.RED);
         } else if (hex.getOwner().equals("BLUE")) {
             g2d.setColor(Color.BLUE);
         }
+
         g2d.fillPolygon(xPoints, yPoints, 6);
         // Draw outline in black.
         g2d.setColor(Color.BLACK);
         g2d.drawPolygon(xPoints, yPoints, 6);
     }
 
+    public void showPassTurnMessage(String message) {
+        errorLabel.setText(message);
+        // Message displayed for 5 sec (5000ms).
+        Timer timer = new Timer(5000, new ActionListener() {
+            // When timer goes off, reset error text.
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                errorLabel.setText("");
+            }
+        });
+        // Timer goes off just once.
+        timer.setRepeats(false);
+        timer.start();
+    }
 
 
     public void updateTurnIndicator() {

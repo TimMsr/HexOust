@@ -23,6 +23,17 @@ public class Controller {
      * @param hex The hexagon to place on the board
      */
     public void handleMove(Hexagon hex) {
+
+        // Check currentPLayer has valid moves
+        if (!hasValidMoves()) {
+            switchTurn();
+            System.out.println("No valid moves available. Current turn passed to " + currentPlayer);
+            if (gui != null) { // For avoid null pointer exception.
+                gui.showPassTurnMessage("No valid moves available. Current turn passed to " + currentPlayer);
+            }
+            return;
+        }
+
         if (hex.getOwner() != null) {
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
         }
@@ -65,34 +76,50 @@ public class Controller {
                     if (currentPlayer.equals(targetNeighbor.getOwner())) {
                         return true;
                     }
-                    break; // Found the neighbor; proceed to next direction
+                    break; // Found the neighbor - proceed to next direction
                 }
             }
         }
         return false;
     }
 
-
     /**
      * Compares nearby grouped hexagons and their owners to check for a capture move.
      * @param placedHex The hexagon that may invoke a capture move
-     * @return HashSet of all capture hexagons to erase.
+     * @return HashSet of all opponent hexagons to erase (captured). Returns empty set if move is invalid.
      */
     public HashSet<Hexagon> captureMove(Hexagon placedHex) {
-        // todo
-        // Group of captured hexagons to return
+        // Group of captured hexagons to return.
         HashSet<Hexagon> capturedSet = new HashSet<>();
 
         // Simulate placing hex by currentPlayer.
         placedHex.setOwner(currentPlayer);
-        // Compute the connected group of currentPlayer.
+        // Compute the connected group of currentPlayer (simulate the new group if the move is made).
         HashSet<Hexagon> currentGroup = getConnectedGroup(placedHex, currentPlayer);
 
         String opponent = currentPlayer.equals("RED") ? "BLUE" : "RED";
-        boolean captureOccurred = false;
         HashSet<Hexagon> processedOpponents = new HashSet<>();
 
-
+        // TIM'S EDGE CASE: If the placed hex is adjacent to currentPlayer hex (forming group),
+        // then check all adjacent opponent groups. If any opponent group >= currentPLayer group,
+        // move invalid - return empty set.
+        if (ownsNeighbor(placedHex)) {
+            for (Hexagon hex : currentGroup) {
+                for (int i = 0; i < 6; i++) {
+                    Hexagon neighbor = hex.neighbor(i);
+                    Hexagon boardNeighbor = getBoardHex(neighbor);
+                    if (boardNeighbor != null && opponent.equals(boardNeighbor.getOwner())) {
+                        HashSet<Hexagon> opponentGroup = getConnectedGroup(boardNeighbor, opponent);
+                        if (opponentGroup.size() >= currentGroup.size()) {
+                            // Reset simulation
+                            placedHex.setOwner(null);
+                            return new HashSet<Hexagon>();
+                        }
+                    }
+                }
+            }
+        }
+        // Normal capture logic if valid move:
         // For every hex in the simulated currentGroup, check its neighbors.
         for (Hexagon hex : currentGroup) {
             for (int i = 0; i < 6; i++) {
@@ -118,7 +145,6 @@ public class Controller {
         placedHex.setOwner(null);
         return capturedSet;
     }
-
 
     /**
      * Flood-fill algorithm to get connected group of hexagons starting a given hexagon that all share the same owner.
@@ -176,7 +202,6 @@ public class Controller {
         return captureOccurred;
     }
 
-
     /**
      * Makes a list of all valid moves the currentPLayer can make on the board
      * @return List of the valid hexagons the current player can choose.
@@ -196,6 +221,9 @@ public class Controller {
         return validMoves;
     }
 
+    public boolean hasValidMoves() {
+        return !getValidMoves().isEmpty();
+    }
 
     public void switchTurn() {
         // Switch between Players
