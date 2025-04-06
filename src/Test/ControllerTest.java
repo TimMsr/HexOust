@@ -4,6 +4,9 @@ import Controller.Controller;
 import Model.Hexagon;
 import View.GUI;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ControllerTest {
@@ -121,5 +124,59 @@ public class ControllerTest {
         // Same player makes a move on a neighbouring hex, should throw an error
         assertThrows(IllegalArgumentException.class, () -> c.handleMove(h2) );   // RED makes move h2, neighbours h1
         assertNull(h2.getOwner()); // Ensure RED is not the owner of hexagon h2
+    }
+
+    /*
+        Test to ensure move capturing mechanic works.
+        Places RED hexagon adjacent to BLUE hexagon, adds 2nd RED,
+        checks that owner of original BLUE hexagon == null.
+     */
+    @Test
+    void testCapturingMove() {
+        Controller c = new Controller();
+        Hexagon h1 = c.getBoard().getHexagons().get(0); // q:-6, r:0, s:6
+        Hexagon h2 = c.getBoard().getHexagons().get(1); // q:-6, r:1, s:5
+        Hexagon h3 = c.getBoard().getHexagons().get(7); // q:-5, r:-1, s:6
+
+        c.handleMove(h1); // RED places h1
+        c.handleMove(h2); // BLUE places h2 adjacent to h1
+        c.handleMove(h3); // RED places h3 adjacent to h1, [h1,h3] group of two adjacent to h2 -> capturing move
+
+        assertNull(c.getBoard().getHexagons().get(1).getOwner());
+    }
+
+    // Test to ensure a players turn is skipped once there are no valid moves
+    @Test
+    void testSkipTurn() {
+        Controller c = new Controller();
+
+        // Array of positions to place a hexagons onto where,
+        // once placed will leave no valid move positions
+        int[] hexPositions = {8, 10, 12, 14, 15, 34, 36,
+                        38, 40, 42, 44, 69, 70, 72,
+                        74, 76, 78, 80, 103, 105, 107,
+                        109, 111, 120, 122, 124, 126};
+
+        ArrayList<Hexagon> hexagons = c.getBoard().getHexagons();
+
+        // For loop which will add a RED hexagon in every position in hexPositions,
+        // then switch the turn back to RED, to keep adding RED hexagons
+        for (int i : hexPositions) {
+            c.handleMove(hexagons.get(i));
+            c.switchTurn();
+        }
+
+        // Once the board is filled, there are no available moves for RED
+        assertEquals("RED", c.getCurrentPlayer()); // Check the current player is still RED
+        assertFalse(c.hasValidMoves()); // Check that RED has no valid moves
+
+        // Try to add a new hexagon at index 0, q:-6, r:0, s:6
+        c.handleMove(hexagons.get(0));
+
+        // Assert that the hexagon was not added by checking the owner at index 0
+        assertNull(hexagons.get(0).getOwner());
+
+        // Once the move got updated, check that RED was skipped and its now BLUE turn
+        assertEquals("BLUE", c.getCurrentPlayer());
     }
 }
