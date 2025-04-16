@@ -9,13 +9,13 @@ import java.util.*;
 public class Controller {
     private Board board;
     private String currentPlayer;
-    private String gameState;
+    private boolean gameOver;
     private GUI gui;
 
     public Controller() {
         this.board = new Board();
         this.currentPlayer = "RED"; // Game starts with RED
-        this.gameState = "Playing";
+        this.gameOver = false;
     }
 
     /**
@@ -34,19 +34,31 @@ public class Controller {
             return;
         }
 
+        // if clicked ALREADY OWNED hex
         if (hex.getOwner() != null) {
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
         }
+        // CAPTURE MOVE below:
         // Look for hexagons to capture, return true if captured hexagons are erased
         boolean capMove = eraseHexagons((captureMove(hex)));
 
+        // WIN - currentPlayer captured all opponent's hexagons
+        if (capMove && checkWin(currentPlayer)) {
+            hex.setOwner(currentPlayer);
+            setGameOver(true);
+            // Show win message via GUI's method:
+            // show win message & stop players from making moves on the board.
+            gui.updateTurnIndicator();
+            return;
+        }
+        // INVALID MOVE
         if (ownsNeighbor(hex) && !capMove) {
             // If the hex is adjacent to one of the current player's hexagons but does not create a capture,
             // the move is invalid.
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
 
         } else {
-            // Valid hex placement
+            // VALID hex placement
             hex.setOwner(currentPlayer);
 
             if (!capMove) {
@@ -92,7 +104,7 @@ public class Controller {
         // Group of captured hexagons to return.
         HashSet<Hexagon> capturedSet = new HashSet<>();
 
-        // Simulate placing hex by currentPlayer.
+        // -- Simulate placing hex by currentPlayer --
         placedHex.setOwner(currentPlayer);
         // Compute the connected group of currentPlayer (simulate the new group if the move is made).
         HashSet<Hexagon> currentGroup = getConnectedGroup(placedHex, currentPlayer);
@@ -225,6 +237,24 @@ public class Controller {
         return !getValidMoves().isEmpty();
     }
 
+    /**
+     * Checks if given player has won, checking that opponent doesn't own any
+     * hexagons on the board.
+     * @param player The player to check for win condition.
+     * @return true if the player has won, false otherwise.
+     */
+    public boolean checkWin(String player) {
+        String opponent = player.equals("RED") ? "BLUE" : "RED";
+        for (Hexagon hex : board.getHexagons()) {
+            // Cannot have any owned opponent hex.
+            if (opponent.equals(hex.getOwner())) {
+                return false;
+            }
+        }
+        // Win detected
+        return true;
+    }
+
     public void switchTurn() {
         // Switch between Players
         currentPlayer = currentPlayer.equals("RED") ? "BLUE" : "RED";
@@ -233,6 +263,14 @@ public class Controller {
         if (gui != null) {
             gui.updateTurnIndicator();
         }
+    }
+
+    // accessor
+    public boolean getGameOver() {
+        return gameOver;
+    }
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     public String getCurrentPlayer() {

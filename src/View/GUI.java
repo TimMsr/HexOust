@@ -5,16 +5,20 @@ import Model.Hexagon;
 import Controller.Controller;
 
 import javax.swing.*;
+import javax.swing.Icon;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-
 
 public class GUI extends JFrame {
     private Board board;
     private Controller controller;
     private JLabel statusLabel;
     private JLabel errorLabel;
+
+    // New instance variables (specifically used to stop play when a win occurs).
+    private JPanel boardPanel;
+    private MouseAdapter boardMouseListener;
 
     // Change sizing
     private final int HEX_SIZE = 30;
@@ -32,29 +36,31 @@ public class GUI extends JFrame {
         setLayout(new BorderLayout());
 
         // Create a status label for turn indicator
+        // These line will be removed before main submission. Labels will be more streamlined!
         statusLabel = new JLabel("Current Turn: " + controller.getCurrentPlayer(), SwingConstants.CENTER);
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        statusLabel.setFont(new Font("Arial", Font.BOLD, 20));
         add(statusLabel, BorderLayout.NORTH); // Place it at the top of the GUI
+        updateTurnIndicator();
 
         // Error label at the bottom for invalid moves.
         errorLabel = new JLabel("", SwingConstants.CENTER);
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        errorLabel.setFont(new Font("Arial", Font.PLAIN, 18));
         errorLabel.setForeground(Color.RED);
         add(errorLabel, BorderLayout.SOUTH);
 
         // Drawing panel for board
-        JPanel panel = new JPanel() {
+        boardPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 drawBoard(g);
             }
         };
-        panel.setPreferredSize(new Dimension(WIDTH, HEIGHT)); // Ensures that Panel matches window size
-        add(panel, BorderLayout.CENTER);
+        boardPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT)); // Ensures that Panel matches window size
+        add(boardPanel, BorderLayout.CENTER);
 
         // Mouse listener to handle clicks on the board.
-        panel.addMouseListener(new MouseAdapter() {
+        boardMouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent pos) {
                 int clickX = pos.getX();
@@ -76,7 +82,8 @@ public class GUI extends JFrame {
                     repaint();
                 }
             }
-        });
+        };
+        boardPanel.addMouseListener(boardMouseListener);
     }
 
     // Draws the board by converting hex coordinates to pixel positions.
@@ -153,9 +160,27 @@ public class GUI extends JFrame {
         timer.start();
     }
 
-
     public void updateTurnIndicator() {
-        statusLabel.setText("Current Turn: " + controller.getCurrentPlayer());
+        // Check if game is over.
+        if (controller.getGameOver()) {
+            // Update status label with winning message.
+            statusLabel.setFont(new Font("Arial", Font.BOLD, 20));
+            statusLabel.setText(" WINS !");
+            // Disable further interaction by removing the mouse listener.
+            boardPanel.removeMouseListener(boardMouseListener);
+        } else {
+            // Game still in progress - Display current turn.
+            // Added feature s4 - Create a small circle icon for the current player.
+            CircleIcon playerIcon;
+            if (controller.getCurrentPlayer().equals("RED")) {
+                playerIcon = new CircleIcon(15, Color.RED);
+            } else {
+                playerIcon = new CircleIcon(15, Color.BLUE);
+            }
+            // Set icon and text on the status label.
+            statusLabel.setText("to make a move");
+            statusLabel.setIcon(playerIcon);
+        }
     }
 
     public void start() {
@@ -168,4 +193,34 @@ public class GUI extends JFrame {
         controller.setGUI(gui); // Link GUI to the Controller (two-way interaction)
         gui.start();
     }
+
+    // Player icon for turn indicator at top of screen.
+    public static class CircleIcon implements Icon {
+        private final int diameter;
+        private final Color color;
+
+        public CircleIcon(int diameter, Color color) {
+            this.diameter = diameter;
+            this.color = color;
+        }
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            g.setColor(color);
+            g.fillOval(x, y, diameter, diameter);
+        }
+        @Override
+        public int getIconWidth() {
+            return diameter;
+        }
+        @Override
+        public int getIconHeight() {
+            return diameter;
+        }
+    }
 }
+
+
+
+
+
