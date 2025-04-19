@@ -165,7 +165,12 @@ public class GUI extends JFrame {
         if (controller.getGameOver()) {
             // Update status label with winning message.
             statusLabel.setFont(new Font("Arial", Font.BOLD, 20));
-            statusLabel.setText(" WINS !");
+            if (controller.getCurrentPlayer().equals("RED")) {
+                statusLabel.setText(" RED wins !");
+            } else {
+            statusLabel.setText(" BLUE wins!");
+
+            }
             // Disable further interaction by removing the mouse listener.
             boardPanel.removeMouseListener(boardMouseListener);
         } else {
