@@ -139,7 +139,7 @@ public class HexagonTest {
         Hexagon h2 = new Hexagon(0, 1, -1);
         Hexagon h3 = new Hexagon(1, -1, 0);
 
-        assertEquals("Hexagon[q:1, r:-1, s:0, owner:none]", h1.toString());
+        assertEquals("Hexagon[q:1, r:-1, s:0, owner:NULL]", h1.toString());
 
         h2.setOwner("RED");
         assertEquals("Hexagon[q:0, r:1, s:-1, owner:RED]", h2.toString());

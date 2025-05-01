@@ -67,6 +67,6 @@ public class Hexagon {
     @Override
     public String toString() {
         return String.format("Hexagon[q:%d, r:%d, s:%d, owner:%s]",
-                q, r, s, (owner == null ? "none" : owner));
+                q, r, s, (owner == null ? "NULL" : owner));
     }
 }

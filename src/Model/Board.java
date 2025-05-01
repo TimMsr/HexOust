@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 
 public class Board {
-    private ArrayList<Hexagon> hexagons;
+    private final ArrayList<Hexagon> hexagons;
+
 
     public Board() {
         hexagons = new ArrayList<>();

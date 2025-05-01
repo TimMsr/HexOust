@@ -141,7 +141,7 @@ public class ControllerTest {
         c.handleMove(h1); // RED places h1
         c.handleMove(h2); // BLUE places h2 adjacent to h1
         c.handleMove(h3); // RED places h3 adjacent to h1, [h1,h3] group of two adjacent to h2 -> capturing move
-
+        // GUI is null
         assertNull(c.getBoard().getHexagons().get(1).getOwner());
     }
 

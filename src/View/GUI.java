@@ -5,25 +5,29 @@ import Model.Hexagon;
 import Controller.Controller;
 
 import javax.swing.*;
-import javax.swing.Icon;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
+/**
+ * Swing frontend.
+ * Status and error messaging is handled by the inner TextDisplay component.
+ */
 public class GUI extends JFrame {
-    private Board board;
-    private Controller controller;
-    private JLabel statusLabel;
-    private JLabel errorLabel;
 
-    // New instance variables (specifically used to stop play when a win occurs).
+    private final Board board;
+    private final Controller controller;
+
+    // View & helpers
+    private final TextDisplay textDisplay = new TextDisplay();
     private JPanel boardPanel;
     private MouseAdapter boardMouseListener;
 
-    // Change sizing
-    private final int HEX_SIZE = 30;
-    private final int WIDTH = 750;
-    private final int HEIGHT = 750;
+    // Board layout
+    private static final int HEX_SIZE = 30;
+    private static final int WIDTH = 750;
+    private static final int HEIGHT = 750;
+
 
     public GUI(Controller controller) {
         this.controller = controller;
@@ -31,201 +35,176 @@ public class GUI extends JFrame {
 
         setTitle("HexOust Game");
         setSize(WIDTH, HEIGHT);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Ensures fully closed when exiting
-        setLocationRelativeTo(null); // Centers on screen
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Create a status label for turn indicator
-        // These line will be removed before main submission. Labels will be more streamlined!
-        statusLabel = new JLabel("Current Turn: " + controller.getCurrentPlayer(), SwingConstants.CENTER);
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        add(statusLabel, BorderLayout.NORTH); // Place it at the top of the GUI
-        updateTurnIndicator();
+        // Textual info (at top and bottom of screen)
+        add(textDisplay, BorderLayout.NORTH);
+        add(textDisplay.getErrorLabel(), BorderLayout.SOUTH);
 
-        // Error label at the bottom for invalid moves.
-        errorLabel = new JLabel("", SwingConstants.CENTER);
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 18));
-        errorLabel.setForeground(Color.RED);
-        add(errorLabel, BorderLayout.SOUTH);
-
-        // Drawing panel for board
         boardPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
+            @Override protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 drawBoard(g);
             }
         };
-        boardPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT)); // Ensures that Panel matches window size
+        boardPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         add(boardPanel, BorderLayout.CENTER);
 
-        // Mouse listener to handle clicks on the board.
+        // Handle mouse clicks
         boardMouseListener = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent pos) {
-                int clickX = pos.getX();
-                int clickY = pos.getY();
+            @Override public void mouseClicked(MouseEvent pos) {
+                Hexagon clicked = board.getHexagonAt(pos.getX(), pos.getY());
+                if (clicked == null) return;
 
-                Hexagon clickedHex = board.getHexagonAt(clickX, clickY);
-                if (clickedHex != null) { // clickedHex is null if not found
-                    try {
-                        controller.handleMove(clickedHex);
-                        // Clear the error only if it doesn't already contain a pass-turn message.
-                        if (!errorLabel.getText().startsWith("No valid moves available")) {
-                            errorLabel.setText("");
-                        }
-                    } catch (IllegalArgumentException ex) {
-                        // Invalid move, display error message at bottom.
-                        errorLabel.setText("Invalid Cell Placement -> " + clickedHex);
-                    }
-                    // Reflect any changes to graphical board
-                    repaint();
+                try {
+                    controller.handleMove(clicked);
+                } catch (IllegalArgumentException ex) {
+                    textDisplay.showError("Invalid Cell Placement -> " + clicked);
                 }
+                repaint();
             }
         };
         boardPanel.addMouseListener(boardMouseListener);
+
+        updateTurnIndicator();
     }
 
-    // Draws the board by converting hex coordinates to pixel positions.
-    private void drawBoard(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        int centerX = WIDTH / 2;
-        int centerY = HEIGHT / 2;
-
-        // Get the list of valid moves from the controller.
-        List<Hexagon> validMoves = controller.getValidMoves();
-
-        for (Hexagon hex : board.getHexagons()) {
-            Point p = hexToPixel(hex, centerX, centerY);
-            drawHexagon(g2d, p.x, p.y, hex, validMoves);
-        }
-    }
-
-    // Converts a hexagon's cube coordinates to its pixel center.
-    private Point hexToPixel(Hexagon hex, int centerX, int centerY) {
-        double x = HEX_SIZE * (3.0 / 2 * hex.q);
-        double y = HEX_SIZE * (Math.sqrt(3) * (hex.r + hex.q / 2.0));
-        return new Point((int)(centerX + x), (int)(centerY + y));
-    }
-
-    // Draws a single hexagon. If a stone is present, fills it with the corresponding color.
-    private void drawHexagon(Graphics2D g2d, int x, int y, Hexagon hex, List<Hexagon> validMoves) {
-        int[] xPoints = new int[6];
-        int[] yPoints = new int[6];
-
-        for (int i = 0; i < 6; i++) {
-            double angle = Math.toRadians(60 * i);
-            xPoints[i] = (int) (x + HEX_SIZE * Math.cos(angle));
-            yPoints[i] = (int) (y + HEX_SIZE * Math.sin(angle));
-        }
-
-        // Choose fill color:
-        // Unowned hexagons
-        if (hex.getOwner() == null) {
-            // Query validMoves list for invalid/valid
-            if (validMoves.contains(hex)) {
-                // Color valid moves in light gray.
-                g2d.setColor(Color.lightGray);
-            } else {
-                // Color invalid moves gray
-                g2d.setColor(Color.gray);
-            }
-            // Owned hexagons
-        } else if (hex.getOwner().equals("RED")) {
-            g2d.setColor(Color.RED);
-        } else if (hex.getOwner().equals("BLUE")) {
-            g2d.setColor(Color.BLUE);
-        }
-
-        g2d.fillPolygon(xPoints, yPoints, 6);
-        // Draw outline in black.
-        g2d.setColor(Color.BLACK);
-        g2d.drawPolygon(xPoints, yPoints, 6);
-    }
-
-    public void showPassTurnMessage(String message) {
-        errorLabel.setText(message);
-        // Message displayed for 5 sec (5000ms).
-        Timer timer = new Timer(5000, new ActionListener() {
-            // When timer goes off, reset error text.
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                errorLabel.setText("");
-            }
-        });
-        // Timer goes off just once.
-        timer.setRepeats(false);
-        timer.start();
-    }
+    // Hooks used by controller:
+    public void showPassTurnMessage(String txt) { textDisplay.showError(txt); }
 
     public void updateTurnIndicator() {
-        // Check if game is over.
+        Player current = Player.valueOf(controller.getCurrentPlayer());
         if (controller.getGameOver()) {
-            // Update status label with winning message.
-            statusLabel.setFont(new Font("Arial", Font.BOLD, 20));
-            if (controller.getCurrentPlayer().equals("RED")) {
-                statusLabel.setText(" RED wins !");
-            } else {
-            statusLabel.setText(" BLUE wins!");
-
-            }
-            // Disable further interaction by removing the mouse listener.
+            textDisplay.showWinner(current);
             boardPanel.removeMouseListener(boardMouseListener);
         } else {
-            // Game still in progress - Display current turn.
-            // Added feature s4 - Create a small circle icon for the current player.
-            CircleIcon playerIcon;
-            if (controller.getCurrentPlayer().equals("RED")) {
-                playerIcon = new CircleIcon(15, Color.RED);
-            } else {
-                playerIcon = new CircleIcon(15, Color.BLUE);
-            }
-            // Set icon and text on the status label.
-            statusLabel.setText("to make a move");
-            statusLabel.setIcon(playerIcon);
+            textDisplay.showTurn(current);
         }
     }
 
-    public void start() {
-        setVisible(true);
+    // Board rendering:
+    private void drawBoard(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int cx = WIDTH / 2, cy = HEIGHT / 2;
+        List<Hexagon> valid = controller.getValidMoves();
+
+        for (Hexagon hex : board.getHexagons()) {
+            Point p = hexToPixel(hex, cx, cy);
+            drawHexagon(g2, p.x, p.y, hex, valid);
+        }
     }
 
+    private Point hexToPixel(Hexagon h, int cx, int cy) {
+        double x = HEX_SIZE * (3.0 / 2 * h.q);
+        double y = HEX_SIZE * (Math.sqrt(3) * (h.r + h.q / 2.0));
+        return new Point((int) (cx + x), (int) (cy + y));
+    }
+
+    private void drawHexagon(Graphics2D g, int x, int y,
+                             Hexagon hex, List<Hexagon> validMoves) {
+
+        int[] xp = new int[6];
+        int[] yp = new int[6];
+        for (int i = 0; i < 6; i++) {
+            double a = Math.toRadians(60 * i);
+            xp[i] = (int) (x + HEX_SIZE * Math.cos(a));
+            yp[i] = (int) (y + HEX_SIZE * Math.sin(a));
+        }
+
+        // Hex colors:
+        if (hex.getOwner() == null) {
+            g.setColor(validMoves.contains(hex) ? Color.LIGHT_GRAY : Color.GRAY);
+        } else if ("RED".equals(hex.getOwner())) {
+            g.setColor(Color.RED);
+        } else {
+            g.setColor(Color.BLUE);
+        }
+
+        g.fillPolygon(xp, yp, 6);
+        g.setColor(Color.BLACK);
+        g.drawPolygon(xp, yp, 6);
+    }
+
+    // Bootstrap
+    public void start() { setVisible(true); }
+
     public static void main(String[] args) {
-        Controller controller = new Controller();
-        GUI gui = new GUI(controller);
-        controller.setGUI(gui); // Link GUI to the Controller (two-way interaction)
+        Controller ctrl = new Controller();
+        GUI gui = new GUI(ctrl);
+        ctrl.setGUI(gui);
         gui.start();
     }
 
-    // Player icon for turn indicator at top of screen.
+    // Helper classes:
+    /** Simple circular color swatch used by TextDisplay. */
     public static class CircleIcon implements Icon {
         private final int diameter;
         private final Color color;
-
-        public CircleIcon(int diameter, Color color) {
-            this.diameter = diameter;
-            this.color = color;
-        }
-
-        @Override
-        public void paintIcon(Component c, Graphics g, int x, int y) {
+        public CircleIcon(int d, Color c) { diameter = d; color = c; }
+        @Override public void paintIcon(Component c, Graphics g, int x, int y) {
             g.setColor(color);
             g.fillOval(x, y, diameter, diameter);
         }
-        @Override
-        public int getIconWidth() {
-            return diameter;
+        @Override public int getIconWidth()  { return diameter; }
+        @Override public int getIconHeight() { return diameter; }
+    }
+
+    /** Semantic type for players, each carries its color. */
+    private enum Player {
+        RED(Color.RED),
+        BLUE(Color.BLUE);
+        private final Color colour;
+        Player(Color c) { this.colour = c; }
+        Color getColour() { return colour; }
+    }
+
+    /** A self-contained bar that can display textual messages to the user. */
+    private static final class TextDisplay extends JPanel {
+        private static final Font STATUS_FONT = new Font("Arial", Font.BOLD, 20);
+        private static final Font ERROR_FONT = new Font("Arial", Font.BOLD, 16);
+        private static final int  CLEAR_MS = 5_000;
+
+        private final JLabel status = buildLabel(STATUS_FONT, Color.BLACK);
+        private final JLabel error = buildLabel(ERROR_FONT,  Color.RED);
+
+        TextDisplay() {
+            super(new BorderLayout());
+            add(status, BorderLayout.CENTER);
         }
-        @Override
-        public int getIconHeight() {
-            return diameter;
+
+        void showTurn(Player player) {
+            status.setIcon(new CircleIcon(15, player.getColour()));
+            status.setText(" " + player + " to make a move");
+            error.setText("");
+        }
+
+        void showWinner(Player player) {
+            status.setIcon(new CircleIcon(15, player.getColour()));
+            status.setText(" " + player + " wins !");
+            error.setText("");
+        }
+
+        void showError(String msg) {
+            error.setText(msg);
+            // Timer only active when passing a player turn:
+            if (msg.startsWith("No valid moves available.")) {
+                Timer t = new Timer(CLEAR_MS, e -> error.setText(""));
+                t.setRepeats(false);
+                t.start();
+            }
+        }
+
+        JLabel getErrorLabel() { return error; }
+
+        private static JLabel buildLabel(Font f, Color fg) {
+            JLabel l = new JLabel("", SwingConstants.CENTER);
+            l.setFont(f);
+            l.setForeground(fg);
+            return l;
         }
     }
 }
-
-
-
-
-

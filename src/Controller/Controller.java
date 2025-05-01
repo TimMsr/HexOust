@@ -7,7 +7,7 @@ import View.GUI;
 import java.util.*;
 
 public class Controller {
-    private Board board;
+    private final Board board; // final
     private String currentPlayer;
     private boolean gameOver;
     private GUI gui;
@@ -23,49 +23,40 @@ public class Controller {
      * @param hex The hexagon to place on the board
      */
     public void handleMove(Hexagon hex) {
-
         // Check currentPLayer has valid moves
         if (!hasValidMoves()) {
             switchTurn();
-            System.out.println("No valid moves available. Current turn passed to " + currentPlayer);
-            if (gui != null) { // For avoid null pointer exception.
+            if (gui != null) { // For avoiding null pointer exception.
                 gui.showPassTurnMessage("No valid moves available. Current turn passed to " + currentPlayer);
             }
             return;
         }
 
-        // if clicked ALREADY OWNED hex
+        // If hex is already owned
         if (hex.getOwner() != null) {
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
         }
-        // CAPTURE MOVE below:
         // Look for hexagons to capture, return true if captured hexagons are erased
         boolean capMove = eraseHexagons((captureMove(hex)));
 
-        // WIN - currentPlayer captured all opponent's hexagons
+        // Win - all opponent's hexagons captured
         if (capMove && checkWin(currentPlayer)) {
             hex.setOwner(currentPlayer);
             setGameOver(true);
-            // Show win message via GUI's method:
-            // show win message & stop players from making moves on the board.
-            gui.updateTurnIndicator();
+            if (gui != null) { // For avoiding null pointer exception.
+                gui.updateTurnIndicator();
+            }
             return;
         }
-        // INVALID MOVE
+
         if (ownsNeighbor(hex) && !capMove) {
-            // If the hex is adjacent to one of the current player's hexagons but does not create a capture,
-            // the move is invalid.
             throw new IllegalArgumentException("Invalid Cell Placement -> " + hex);
-
         } else {
-            // VALID hex placement
+            // Valid hex placement
             hex.setOwner(currentPlayer);
-
             if (!capMove) {
                 switchTurn();
             }
-            // Capture move testing in terminal
-            System.out.println("CP Move: " + capMove);
         }
     }
 
@@ -84,11 +75,10 @@ public class Controller {
                     targetNeighbor.r == neighbor.r &&
                     targetNeighbor.s == neighbor.s) {
 
-                    // Return true if the neighbor is owned by the current player
                     if (currentPlayer.equals(targetNeighbor.getOwner())) {
                         return true;
                     }
-                    break; // Found the neighbor - proceed to next direction
+                    break;
                 }
             }
         }
@@ -101,65 +91,79 @@ public class Controller {
      * @return HashSet of all opponent hexagons to erase (captured). Returns empty set if move is invalid.
      */
     public HashSet<Hexagon> captureMove(Hexagon placedHex) {
-        // Group of captured hexagons to return.
-        HashSet<Hexagon> capturedSet = new HashSet<>();
-
-        // -- Simulate placing hex by currentPlayer --
+        // Simulate the placement
         placedHex.setOwner(currentPlayer);
-        // Compute the connected group of currentPlayer (simulate the new group if the move is made).
         HashSet<Hexagon> currentGroup = getConnectedGroup(placedHex, currentPlayer);
 
         String opponent = currentPlayer.equals("RED") ? "BLUE" : "RED";
-        HashSet<Hexagon> processedOpponents = new HashSet<>();
 
-        // TIM'S EDGE CASE: If the placed hex is adjacent to currentPlayer hex (forming group),
-        // then check all adjacent opponent groups. If any opponent group >= currentPLayer group,
-        // move invalid - return empty set.
-        if (ownsNeighbor(placedHex)) {
-            for (Hexagon hex : currentGroup) {
-                for (int i = 0; i < 6; i++) {
-                    Hexagon neighbor = hex.neighbor(i);
-                    Hexagon boardNeighbor = getBoardHex(neighbor);
-                    if (boardNeighbor != null && opponent.equals(boardNeighbor.getOwner())) {
-                        HashSet<Hexagon> opponentGroup = getConnectedGroup(boardNeighbor, opponent);
-                        if (opponentGroup.size() >= currentGroup.size()) {
-                            // Reset simulation
-                            placedHex.setOwner(null);
-                            return new HashSet<Hexagon>();
-                        }
-                    }
-                }
-            }
+        // Early‑exit; size conflict between the two player's groups
+        if (hasSizeConflict(placedHex, currentGroup, opponent)) {
+            placedHex.setOwner(null); // reset simulation
+            return new HashSet<>(); // invalid - no capture
         }
-        // Normal capture logic if valid move:
-        // For every hex in the simulated currentGroup, check its neighbors.
-        for (Hexagon hex : currentGroup) {
-            for (int i = 0; i < 6; i++) {
-                Hexagon neighbor = hex.neighbor(i);
-                Hexagon boardNeighbor = getBoardHex(neighbor);
-                // If the neighbor belongs to the opponent and hasn't been processed...
-                if (boardNeighbor != null && opponent.equals(boardNeighbor.getOwner()) &&
-                        !processedOpponents.contains(boardNeighbor)) {
-                    // Get the full connected opponent group.
-                    HashSet<Hexagon> opponentGroup = getConnectedGroup(boardNeighbor, opponent);
-                    processedOpponents.addAll(opponentGroup);
+        // Normal capture logic
+        HashSet<Hexagon> capturedSet = findCapturedHexagons(currentGroup, opponent);
 
-                    // If the current player's group (including the new hex) is larger,
-                    // add the opponents group to the captured set (so we can erase later).
-                    if (currentGroup.size() > opponentGroup.size()) {
-                        capturedSet.addAll(opponentGroup);
-                    }
-                }
-            }
-        }
-        // -- End of simulation --
-        // Reset the placed hex's owner
-        placedHex.setOwner(null);
+        placedHex.setOwner(null); // reset simulation
         return capturedSet;
     }
 
     /**
-     * Flood-fill algorithm to get connected group of hexagons starting a given hexagon that all share the same owner.
+     * Checks if the placed hex joins an existing group, that every adjacent opponent
+     * group the new hex touches is strictly smaller; otherwise the
+     * move is invalid.
+     * @return true if there is a size conflict, false otherwise
+     */
+    private boolean hasSizeConflict(Hexagon placedHex,
+                                      HashSet<Hexagon> currentGroup, String opponent) {
+        if (!ownsNeighbor(placedHex)) return false;
+        for (Hexagon hex : currentGroup) {
+            for (int dir = 0; dir < 6; dir++) {
+                Hexagon boardNeighbor = getBoardHex(hex.neighbor(dir));
+
+                if (boardNeighbor != null && opponent.equals(boardNeighbor.getOwner())) {
+                    HashSet<Hexagon> oppGroup = getConnectedGroup(boardNeighbor, opponent);
+                    if (oppGroup.size() >= currentGroup.size()) {
+                        return true; // invalid move – opponent group is larger
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gathers all opponent groups that will be captured by the current move.
+     * Should be called after check for size conflicts.
+     */
+    private HashSet<Hexagon> findCapturedHexagons(HashSet<Hexagon> currentGroup,
+                                                  String opponent) {
+
+        HashSet<Hexagon> captured = new HashSet<>();
+        HashSet<Hexagon> processed = new HashSet<>();
+
+        for (Hexagon hex : currentGroup) {
+            for (int dir = 0; dir < 6; dir++) {
+                Hexagon boardNeighbor = getBoardHex(hex.neighbor(dir));
+                if (boardNeighbor != null &&
+                    opponent.equals(boardNeighbor.getOwner()) &&
+                    !processed.contains(boardNeighbor)) {
+
+                    HashSet<Hexagon> oppGroup = getConnectedGroup(boardNeighbor, opponent);
+                    processed.addAll(oppGroup);
+
+                    if (currentGroup.size() > oppGroup.size()) {
+                        captured.addAll(oppGroup);
+                    }
+                }
+            }
+        }
+        return captured;
+    }
+
+    /**
+     * Flood-fill algorithm gets a connected group of hexagons from a given hexagon that all share the same owner.
      *
      * @param start The starting hexagon.
      * @param owner The owner of the starting hexagon.
@@ -175,7 +179,7 @@ public class Controller {
             Hexagon current = queue.poll();
             for (int i = 0; i < 6; i++) {
                 Hexagon neighbor = current.neighbor(i);
-                Hexagon boardNeighbor = getBoardHex(neighbor); // validate neighbor
+                Hexagon boardNeighbor = getBoardHex(neighbor);
                 if (boardNeighbor != null && owner.equals(boardNeighbor.getOwner()) && !group.contains(boardNeighbor)) {
                     group.add(boardNeighbor);
                     queue.add(boardNeighbor);
@@ -216,71 +220,60 @@ public class Controller {
 
     /**
      * Makes a list of all valid moves the currentPLayer can make on the board
-     * @return List of the valid hexagons the current player can choose.
+     * @return Valid move list.
      */
     public List<Hexagon> getValidMoves() {
         List<Hexagon> validMoves = new ArrayList<>();
         for (Hexagon hex : board.getHexagons()) {
-            // Hex must be unowned to be valid.
-            if (hex.getOwner() == null) {
-                // A hex is valid if either it is not adjacent to any of the current player's hexagons
-                // OR if it creates a capture opportunity when placed.
-                if (ownsNeighbor(hex) == !captureMove(hex).isEmpty()) {
-                    validMoves.add(hex);
-                }
+            // Hex cant be owned, and if ownsNeighbor - then must be a capture.
+            if (hex.getOwner() == null &&
+                    ownsNeighbor(hex) ^ captureMove(hex).isEmpty()) {
+                validMoves.add(hex);
             }
         }
         return validMoves;
     }
 
     public boolean hasValidMoves() {
-        return !getValidMoves().isEmpty();
+        return !(getValidMoves().isEmpty());
     }
 
     /**
-     * Checks if given player has won, checking that opponent doesn't own any
-     * hexagons on the board.
+     * Checks if given player has won, verifying the opponent doesn't own a hexagon.
      * @param player The player to check for win condition.
      * @return true if the player has won, false otherwise.
      */
     public boolean checkWin(String player) {
         String opponent = player.equals("RED") ? "BLUE" : "RED";
         for (Hexagon hex : board.getHexagons()) {
-            // Cannot have any owned opponent hex.
             if (opponent.equals(hex.getOwner())) {
                 return false;
             }
         }
-        // Win detected
         return true;
     }
 
     public void switchTurn() {
-        // Switch between Players
         currentPlayer = currentPlayer.equals("RED") ? "BLUE" : "RED";
-
-        // Update GUI if it's set
         if (gui != null) {
             gui.updateTurnIndicator();
         }
     }
 
-    // accessor
+
     public boolean getGameOver() {
         return gameOver;
     }
     public void setGameOver(boolean gameOver) {
         this.gameOver = gameOver;
     }
-
     public String getCurrentPlayer() {
         return currentPlayer;
     }
-
+    public void setCurrentPlayer(String p) {this.currentPlayer = p;}
     public Board getBoard() {
         return board;
     }
-
     public void setGUI(GUI gui) {
         this.gui = gui;
     }
