@@ -5,7 +5,17 @@ import Model.Hexagon;
 import View.GUI;
 
 import java.util.*;
-
+/**
+ * Central game‑logic coordinator for <i>HexOust</i>.
+ * <p>The Controller owns a single {@link Model.Board} instance and
+ * tracks whose turn it is. It provides a narrow API used by the GUI.</p>
+ *
+ * <h6>Collaboration</h6>
+ * The controller notifies the UI through a back‑reference to
+ * {@link View.GUI} so the view can refresh the display.
+ * No Swing components are manipulated directly here,
+ * keeping game logic independent of presentation.
+ */
 public class Controller {
     private final Board board; // final
     private String currentPlayer;
@@ -163,8 +173,8 @@ public class Controller {
     }
 
     /**
-     * Flood-fill algorithm gets a connected group of hexagons from a given hexagon that all share the same owner.
-     *
+     * Flood-fill algorithm gets a connected group of hexagons from a given hexagon
+     * that all share the same owner.
      * @param start The starting hexagon.
      * @param owner The owner of the starting hexagon.
      * @return A HashSet of connected hexagons with the given owner.
@@ -180,7 +190,8 @@ public class Controller {
             for (int i = 0; i < 6; i++) {
                 Hexagon neighbor = current.neighbor(i);
                 Hexagon boardNeighbor = getBoardHex(neighbor);
-                if (boardNeighbor != null && owner.equals(boardNeighbor.getOwner()) && !group.contains(boardNeighbor)) {
+                if (boardNeighbor != null && owner.equals(boardNeighbor.getOwner())
+                        && !group.contains(boardNeighbor)) {
                     group.add(boardNeighbor);
                     queue.add(boardNeighbor);
                 }

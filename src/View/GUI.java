@@ -10,9 +10,25 @@ import java.awt.event.*;
 import java.util.List;
 
 /**
- * Swing frontend.
- * Status and error messaging is handled by the inner TextDisplay component.
- */
+ * Swing front‑end for the <i>HexOust</i> game.
+ *
+ * <p>{@code GUI} is responsible for:
+ * <ul>
+ *   <li>Rendering the hexagonal board and highlighting valid moves.</li>
+ *   <li>Displaying turn / win information and error messages via the
+ *       inner {@code TextDisplay}.</li>
+ *   <li>Forwarding mouse clicks to the {@link Controller} and repainting in
+ *       response to game‑state changes.</li>
+ * </ul>
+ *
+ * <h6>Collaboration</h6>
+ * A two‑way link is established at start‑up:
+ * <ol>
+ *   <li>The constructor receives a {@link Controller} reference.</li>
+ *   <li>The controller’s {@code setGUI(this)} call lets the game logic push
+ *       updates back to the view (eg; turn‑change messages).</li>
+ * </ol>
+ **/
 public class GUI extends JFrame {
 
     private final Board board;

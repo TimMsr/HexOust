@@ -3,7 +3,13 @@ package Model;
 import java.awt.*;
 import java.util.ArrayList;
 
-
+/**
+ * Logical representation of the HexOust playing board.
+ *
+ * <p>The {@code Board} is a fixed collection of {@link Hexagon} objects laid
+ * out in a regular hex‑shaped grid (“cube” axial coordinates q,r,s = 0).
+ * The constructor builds a base‑7 board but can be reused for any size.</p>
+ */
 public class Board {
     private final ArrayList<Hexagon> hexagons;
 
@@ -29,17 +35,15 @@ public class Board {
         return hexagons;
     }
 
-    /*
+    /**
      * Finds the hexagon that was clicked on the board, based on pixel coords [x,y]
      * Same size param as GUI.
      */
     public Hexagon getHexagonAt(int x, int y) {
-        // *Change params below when we resize board*
         int centerX = 750 / 2;
         int centerY = 750 / 2;
         int hexSize = 30;
 
-        // Loop over all hexagons
         for (Hexagon hex : hexagons) {
             double hexCenterX = centerX + hexSize * (3.0 / 2 * hex.q);
             double hexCenterY = centerY + hexSize * (Math.sqrt(3) * (hex.r + hex.q / 2.0));
