@@ -6,8 +6,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class HexagonTest {
 
+    /**
+     * Test to verify that all coordinates of a Hexagon are set correctly.
+     * - Needs to satisfy "q + r + s == 0" rule.
+     */
     @Test
-    void validHexCreation() {
+    void testNewHexagonCorrectAllValues() {
         Hexagon h = new Hexagon(1, -1, 0);
         // (q + r + s == 0)
         assertEquals(1, h.q);
@@ -15,16 +19,28 @@ public class HexagonTest {
         assertEquals(0, h.s);
     }
 
+    /**
+     * Tests that a created Hexagon maintains the "q + r + s == 0" rule.
+     */
     @Test
-    void invalidHexCreation() {
-        // (q + r + s != 0)
-        assertThrows(IllegalArgumentException.class, () -> {
-            new Hexagon(1, 1, 1);
-        });
+    void testHexagonCoordsSumZero() {
+        Hexagon h = new Hexagon(1, -1, 0);
+        assertEquals(0, h.q + h.r + h.s);
     }
 
+    /**
+     * Tests that creating a hexagon that does not satisfy "q + r + s == 0" rule will throw an error.
+     */
     @Test
-    void testAddition() {
+    void invalidHexCreation() {
+        assertThrows(IllegalArgumentException.class, () -> new Hexagon(1, 1, 1));
+    }
+
+    /**
+     * Testing hexagon addition functioning where new hexagons will return expected values
+     */
+    @Test
+    void testHexagonAdditionReturnsCorrectValues() {
         Hexagon h1 = new Hexagon(1, -1, 0);
         Hexagon h2 = new Hexagon(0, 1, -1);
         Hexagon result = h1.add(h2);
@@ -34,8 +50,25 @@ public class HexagonTest {
         assertEquals(-1, result.s);
     }
 
+    /**
+     * Tests that the "q + r + s == 0" rule is maintained in
+     * hexagons which have been created as a result of addition.
+     */
     @Test
-    void testSubtraction() {
+    void testHexagonAdditionMaintainsZeroSumRule() {
+        Hexagon h1 = new Hexagon(1, -1, 0);
+        Hexagon h2 = new Hexagon(0, 1, -1);
+        Hexagon result = h1.add(h2);
+
+        assertEquals(0, result.q + result.r + result.s);
+    }
+
+    /**
+     * Tests that the hexagon subtraction method returns a hexagon
+     * with the correct values for each coordinate
+     */
+    @Test
+    void testHexagonSubtractionReturnsCorrectValues() {
         Hexagon h1 = new Hexagon(1, -1, 0);
         Hexagon h2 = new Hexagon(0, 1, -1);
         Hexagon result = h1.subtract(h2);
@@ -45,17 +78,38 @@ public class HexagonTest {
         assertEquals(1, result.s);
     }
 
+    /**
+     * Test to ensure hexagons created after hexagon subtraction
+     * maintain the "q + r + s == 0" rule.
+     */
     @Test
-    void testLength() {
-        // Length from origin : (q+r+s)/2 = l
+    void testSubtractionMaintainsZeroSumRule() {
+        Hexagon h1 = new Hexagon(1, -1, 0);
+        Hexagon h2 = new Hexagon(0, 1, -1);
+        Hexagon result = h1.subtract(h2);
+
+        assertEquals(0, result.q + result.r + result.s);
+    }
+
+    /**
+     * Tests the functioning of the hexagon.length function.
+     * Correct functioning should return the length from the origin from the formula:
+     * (q + r + s) / 2 = length, where q,r,s, are all absolute values
+     */
+    @Test
+    void testHexagonLengthFromOrigin() {
         Hexagon h = new Hexagon(3, -2, -1);
 
         assertEquals(3, h.length());
     }
 
+    /**
+     * Test to ensure the distance between two hexagons is calculated correctly.
+     * Distance is found by adding the difference between each q,r,s coordinate
+     * in both hexagons and dividing the result by 2.
+     */
     @Test
-    void testDistance() {
-        // abs(h1-h2)/2 =
+    void testHexagonDistanceReturnsCorrectValue() {
         Hexagon h1 = new Hexagon(4, 2, -6);
         Hexagon h2 = new Hexagon(2, -1, -1);
 
@@ -63,74 +117,109 @@ public class HexagonTest {
     }
 
     // All directions 0-5 tested
+
+    /**
+     * Hexagon.direction() returns the movement direction corresponding to the given index.
+     * The index must be between 0 and 5, representing the 6 directions
+     * E.g. Hexagon newHex = currentHex.add(Hexagon.direction(0)); - Moves right
+     *
+     * We created a helper method as the code is the same for each direction just with different parameters.
+     *
+     * These 6 test cases test the functionality of each direction, split into different
+     * tests for each direction to ensure if one direction fails rest will still be tested.
+     */
+
+    private void assertHexagonDirection(int direction, int q, int r, int s) {
+        Hexagon h = Hexagon.direction(direction);
+        assertEquals(q, h.q);
+        assertEquals(r, h.r);
+        assertEquals(s, h.s);
+    }
+
     @Test
-    void testDirection() {
+    void TestHexagonDirection0() {
+        assertHexagonDirection(0, 1, 0, -1);
+    }
 
-        Hexagon d0 = Hexagon.direction(0);
-        assertEquals(1, d0.q);
-        assertEquals(0, d0.r);
-        assertEquals(-1, d0.s);
+    @Test
+    void TestHexagonDirection1() {
+        assertHexagonDirection(1, 1, -1, 0);
+    }
 
-        Hexagon d1 = Hexagon.direction(1);
-        assertEquals(1, d1.q);
-        assertEquals(-1, d1.r);
-        assertEquals(0, d1.s);
+    @Test
+    void TestHexagonDirection2() {
+        assertHexagonDirection(2, 0, -1, 1);
+    }
 
-        Hexagon d2 = Hexagon.direction(2);
-        assertEquals(0, d2.q);
-        assertEquals(-1, d2.r);
-        assertEquals(1, d2.s);
+    @Test
+    void TestHexagonDirection3() {
+        assertHexagonDirection(3, -1, 0, 1);
+    }
 
-        Hexagon d3 = Hexagon.direction(3);
-        assertEquals(-1, d3.q);
-        assertEquals(0, d3.r);
-        assertEquals(1, d3.s);
+    @Test
+    void TestHexagonDirection4() {
+        assertHexagonDirection(4, -1, 1, 0);
+    }
 
-        Hexagon d4 = Hexagon.direction(4);
-        assertEquals(-1, d4.q);
-        assertEquals(1, d4.r);
-        assertEquals(0, d4.s);
-
-        Hexagon d5 = Hexagon.direction(5);
-        assertEquals(0, d5.q);
-        assertEquals(1, d5.r);
-        assertEquals(-1, d5.s);
+    @Test
+    void TestHexagonDirection5() {
+        assertHexagonDirection(5, 0, 1, -1);
     }
 
     // All 0-5 neighbouring directions tested form (0,0,0)
-    @Test
-    void testNeighbor() {
+
+    /**
+     * Helper method to assert testing of the neighbour method.
+     * Works by calculating the neighbour in a chosen direction from
+     * the origin, then checking that the coordinates match those of
+     * the neighbour in that direction.
+     *
+     * @param direction
+     * @param q
+     * @param r
+     * @param s
+     */
+    private void assertNeighbourFromOrigin(int direction, int q, int r, int s) {
         Hexagon currHexagon = new Hexagon(0, 0, 0);
 
-        Hexagon n0 = currHexagon.neighbor(0);
-        assertEquals(1, n0.q);
-        assertEquals(0, n0.r);
-        assertEquals(-1, n0.s);
+        Hexagon n = currHexagon.neighbor(direction);
+        assertEquals(q, n.q);
+        assertEquals(r, n.r);
+        assertEquals(s, n.s);
+    }
 
-        Hexagon n1 = currHexagon.neighbor(1);
-        assertEquals(1, n1.q);
-        assertEquals(-1, n1.r);
-        assertEquals(0, n1.s);
+    /**
+     * Tests each neighbour in each direction matches expected coordinates
+     * uses assertNeighbourFromOrigin helper method to reduce code repetition.
+     */
+    @Test
+    void testNeighbour0() {
+        assertNeighbourFromOrigin(0, 1, 0, -1);
+    }
 
-        Hexagon n2 = currHexagon.neighbor(2);
-        assertEquals(0, n2.q);
-        assertEquals(-1, n2.r);
-        assertEquals(1, n2.s);
+    @Test
+    void testNeighbour1() {
+        assertNeighbourFromOrigin(1, 1, -1, 0);
+    }
 
-        Hexagon n3 = currHexagon.neighbor(3);
-        assertEquals(-1, n3.q);
-        assertEquals(0, n3.r);
-        assertEquals(1, n3.s);
+    @Test
+    void testNeighbour2() {
+        assertNeighbourFromOrigin(2, 0, -1, 1);
+    }
 
-        Hexagon n4 = currHexagon.neighbor(4);
-        assertEquals(-1, n4.q);
-        assertEquals(1, n4.r);
-        assertEquals(0, n4.s);
+    @Test
+    void testNeighbour3() {
+        assertNeighbourFromOrigin(3, -1, 0, 1);
+    }
 
-        Hexagon n5 = currHexagon.neighbor(5);
-        assertEquals(0, n5.q);
-        assertEquals(1, n5.r);
-        assertEquals(-1, n5.s);
+    @Test
+    void testNeighbour4() {
+        assertNeighbourFromOrigin(4, -1, 1, 0);
+    }
+
+    @Test
+    void testNeighbour5() {
+        assertNeighbourFromOrigin(5, 0, 1, -1);
     }
 
     @Test
