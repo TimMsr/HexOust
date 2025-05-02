@@ -179,4 +179,26 @@ public class ControllerTest {
         // Once the move got updated, check that RED was skipped and its now BLUE turn
         assertEquals("BLUE", c.getCurrentPlayer());
     }
+
+    // Test to ensure checkWin function works, and game ends accordingly.
+    @Test
+    void testWinCondition() {
+        Controller c = new Controller();
+
+        // Initialise GUI for test to function
+        c.setGUI(new DummyGUI(c));
+
+        Hexagon h1 = c.getBoard().getHexagons().get(0); // q:-6, r:0, s:6
+        Hexagon h2 = c.getBoard().getHexagons().get(2); // q:-6, r:2, s:4
+        Hexagon h3 = c.getBoard().getHexagons().get(1); // q:-6, r:1, s:5
+        Hexagon h4 = c.getBoard().getHexagons().get(4);
+
+        // Win condition -> Capturing move + No opponent hexagons on the board
+        c.handleMove(h1); // Red move
+        c.handleMove(h2); // Blue move
+        c.handleMove(h3); // Red move adjacent to blue, captures
+
+        assertTrue(c.checkWin("RED"));
+        assertTrue(c.getGameOver());
+    }
 }
