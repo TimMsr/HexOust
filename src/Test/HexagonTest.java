@@ -287,6 +287,6 @@ public class HexagonTest {
     void testGetOwnerReturnsNullValue() {
         Hexagon h = new Hexagon(0, 0, 0);
 
-        assertEquals(null, h.getOwner());
+        assertNull(h.getOwner());
     }
 }
