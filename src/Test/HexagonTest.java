@@ -193,47 +193,67 @@ public class HexagonTest {
      * uses assertNeighbourFromOrigin helper method to reduce code repetition.
      */
     @Test
-    void testNeighbour0() {
+    void testNeighbourDirection0() {
         assertNeighbourFromOrigin(0, 1, 0, -1);
     }
 
     @Test
-    void testNeighbour1() {
+    void testNeighbourDirection1() {
         assertNeighbourFromOrigin(1, 1, -1, 0);
     }
 
     @Test
-    void testNeighbour2() {
+    void testNeighbourDirection2() {
         assertNeighbourFromOrigin(2, 0, -1, 1);
     }
 
     @Test
-    void testNeighbour3() {
+    void testNeighbourDirection3() {
         assertNeighbourFromOrigin(3, -1, 0, 1);
     }
 
     @Test
-    void testNeighbour4() {
+    void testNeighbourDirection4() {
         assertNeighbourFromOrigin(4, -1, 1, 0);
     }
 
     @Test
-    void testNeighbour5() {
+    void testNeighbourDirection5() {
         assertNeighbourFromOrigin(5, 0, 1, -1);
     }
 
+    /**
+     * Test to ensure that a hexagon with no defined owner returns
+     * a string with the owner as NULL
+     */
     @Test
-    void testToString() {
-        Hexagon h1 = new Hexagon(1, -1, 0);
-        Hexagon h2 = new Hexagon(0, 1, -1);
-        Hexagon h3 = new Hexagon(1, -1, 0);
+    void testToStringNullOwner() {
+        Hexagon h = new Hexagon(0, 0, 0);
 
-        assertEquals("Hexagon[q:1, r:-1, s:0, owner:NULL]", h1.toString());
+        assertEquals("Hexagon[q:0, r:0, s:0, owner:NULL]", h.toString());
+    }
 
-        h2.setOwner("RED");
-        assertEquals("Hexagon[q:0, r:1, s:-1, owner:RED]", h2.toString());
+    /**
+     * Test to ensure setting the owner of a hexagon as RED returns
+     * correct string format.
+     */
+    @Test
+    void testToStringRedOwner() {
+        Hexagon h = new Hexagon(0, 0, 0);
 
-        h3.setOwner("BLUE");
-        assertEquals("Hexagon[q:1, r:-1, s:0, owner:BLUE]", h3.toString());
+        h.setOwner("RED");
+        assertEquals("Hexagon[q:0, r:0, s:0, owner:RED]", h.toString());
+    }
+
+    /**
+     * Test to ensure setting the owner of a hexagon as BLUE returns
+     * correct string format.
+     */
+    @Test
+    void testToStringBlueOwner() {
+        Hexagon h = new Hexagon(0, 0, 0);
+
+        h.setOwner("BLUE");
+        assertEquals("Hexagon[q:0, r:0, s:0, owner:BLUE]", h.toString());
     }
 }
