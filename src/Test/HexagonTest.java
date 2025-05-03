@@ -129,6 +129,20 @@ public class HexagonTest {
      * tests for each direction to ensure if one direction fails rest will still be tested.
      */
 
+    /**
+     * Hexagon.direction() returns the movement direction corresponding to the given index.
+     * E.g. Hexagon newHex = currentHex.add(Hexagon.direction(0)); - Moves right
+     *
+     * We created a helper method as the code is the same for each direction just with different parameters.
+     *
+     * These 6 test cases test the functionality of each direction, split into different
+     * tests for each direction to ensure if one direction fails rest will still be tested.
+     *
+     * @param direction The index between 0 and 5, representing the 6 directions
+     * @param q Expect q value for the hexagon at the direction
+     * @param r Expect r value for the hexagon at the direction
+     * @param s Expect s value for the hexagon at the direction
+     */
     private void assertHexagonDirection(int direction, int q, int r, int s) {
         Hexagon h = Hexagon.direction(direction);
         assertEquals(q, h.q);
@@ -166,18 +180,16 @@ public class HexagonTest {
         assertHexagonDirection(5, 0, 1, -1);
     }
 
-    // All 0-5 neighbouring directions tested form (0,0,0)
-
     /**
      * Helper method to assert testing of the neighbour method.
      * Works by calculating the neighbour in a chosen direction from
      * the origin, then checking that the coordinates match those of
      * the neighbour in that direction.
      *
-     * @param direction
-     * @param q
-     * @param r
-     * @param s
+     * @param direction The direction from the origin hexagon to get neighbour from
+     * @param q The expected q coordinate of the neighbour
+     * @param r The expected r coordinate of the neighbour
+     * @param s The expected s coordinate of the neighbour
      */
     private void assertNeighbourFromOrigin(int direction, int q, int r, int s) {
         Hexagon currHexagon = new Hexagon(0, 0, 0);
@@ -189,7 +201,7 @@ public class HexagonTest {
     }
 
     /**
-     * Tests each neighbour in each direction matches expected coordinates
+     * Tests each neighbour in each direction (0 - 5) matches expected coordinates
      * uses assertNeighbourFromOrigin helper method to reduce code repetition.
      */
     @Test
@@ -255,5 +267,26 @@ public class HexagonTest {
 
         h.setOwner("BLUE");
         assertEquals("Hexagon[q:0, r:0, s:0, owner:BLUE]", h.toString());
+    }
+
+    /**
+     * Tests that getOwner() returns the correct owner after being set.
+     */
+    @Test
+    void testGetOwnerReturnsCorrectValue() {
+        Hexagon h = new Hexagon(0, 0, 0);
+
+        h.setOwner("RED");
+        assertEquals("RED", h.getOwner());
+    }
+
+    /**
+     * Tests that getOwner() returns NULL before being set.
+     */
+    @Test
+    void testGetOwnerReturnsNullValue() {
+        Hexagon h = new Hexagon(0, 0, 0);
+
+        assertEquals(null, h.getOwner());
     }
 }
