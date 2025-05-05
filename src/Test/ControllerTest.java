@@ -127,6 +127,10 @@ public class ControllerTest {
         assertEquals("RED", c.getCurrentPlayer());
     }
 
+    /**
+     * Test to ensure when hexagons are fed to the handleMove() function
+     * they assign the current player as the owner of that hexagon.
+     */
     @Test
     void testHandleMoveAssignsOwnerToHexagon() {
         Hexagon h1 = new Hexagon(0,0, 0);

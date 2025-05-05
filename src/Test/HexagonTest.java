@@ -120,17 +120,6 @@ public class HexagonTest {
 
     /**
      * Hexagon.direction() returns the movement direction corresponding to the given index.
-     * The index must be between 0 and 5, representing the 6 directions
-     * E.g. Hexagon newHex = currentHex.add(Hexagon.direction(0)); - Moves right
-     *
-     * We created a helper method as the code is the same for each direction just with different parameters.
-     *
-     * These 6 test cases test the functionality of each direction, split into different
-     * tests for each direction to ensure if one direction fails rest will still be tested.
-     */
-
-    /**
-     * Hexagon.direction() returns the movement direction corresponding to the given index.
      * E.g. Hexagon newHex = currentHex.add(Hexagon.direction(0)); - Moves right
      *
      * We created a helper method as the code is the same for each direction just with different parameters.

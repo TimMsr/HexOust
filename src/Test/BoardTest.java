@@ -25,7 +25,7 @@ public class BoardTest {
      * null and satisfying the "q + r + s == 0" rule.
      */
     @Test
-    void testgetHexagonsReturnsValidHexagons() {
+    void testGetHexagonsReturnsValidHexagons() {
         Board board = new Board();
         ArrayList<Hexagon> hexagons = board.getHexagons();
         assertNotNull(hexagons);
