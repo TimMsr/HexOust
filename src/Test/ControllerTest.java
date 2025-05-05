@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -364,5 +365,25 @@ public class ControllerTest {
     @Test
     void testNewGameIsNotOverAtStart() {
         assertFalse(c.getGameOver());
+    }
+
+    /**
+     * Test to ensure that getConnectedGroup() returns the correct size for a
+     * group of connected hexagons.
+     * Setup is done by
+     */
+    @Test
+    void testGetConnectedGroupReturnsCorrectSize() {
+        Hexagon h1 = c.getBoard().getHexagons().get(0); // q:-6, r:0, s:6
+        Hexagon h2 = c.getBoard().getHexagons().get(2); // q:-6, r:2, s:4
+        Hexagon h3 = c.getBoard().getHexagons().get(1); // q:-6, r:1, s:5
+
+        c.handleMove(h1);
+        c.handleMove(h2);
+        c.handleMove(h3);
+
+        HashSet<Hexagon> connectedGroup = c.getConnectedGroup(h1, "RED");
+
+        assertEquals(2, connectedGroup.size());
     }
 }
