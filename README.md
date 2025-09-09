@@ -1,93 +1,126 @@
-# HexOust
+<div align="center">
 
-A minimalist two‑player capture game on a hexagonal board, built with Java/Swing. HexOust blends clean UI with concise game logic and thoughtful unit tests — a compact showcase of OO design, hex‑grid math, and interactive rendering.
+# HexOust ▷ A Minimalist Hex Capture Game
 
-> TL;DR: Click to place pieces. Capture smaller adjacent enemy groups. Keep your turn on captures. Win when your opponent has no pieces left.
+[![Java](https://img.shields.io/badge/Java-11%2B-red?logo=java&logoColor=white)](#)
+[![Swing](https://img.shields.io/badge/UI-Swing-blue)](#)
+[![JUnit 5](https://img.shields.io/badge/Tests-JUnit%205-25a162?logo=junit5&logoColor=white)](#)
+[![MVC](https://img.shields.io/badge/Architecture-MVC-6f42c1)](#)
+[![Made%20with%20❤️](https://img.shields.io/badge/Made%20with-%E2%9D%A4%EF%B8%8F-brightgreen)](#)
 
-## Screenshots
+<br>
 
-<!-- Replace these with your own images or a GIF demo -->
-<!-- ![Board](docs/screenshot-board.png) -->
-<!-- ![Capture](docs/screenshot-capture.png) -->
+🟦⬡⬡⬡🟥 HexOust blends a sleek hex‑grid UI with tight, well‑tested game logic. Click to place, capture smaller adjacent enemy groups, keep your turn on capture, and win when your opponent has no pieces left.
 
-## Features
+<br>
 
-- Modern Swing UI: anti‑aliased hex grid with valid‑move highlighting.
-- Clear UX: turn indicator with color swatch; transient error/pass messages.
-- Interesting ruleset: group‑size capture mechanic and repeat‑turn on capture.
-- Robust core: cube coordinates (q+r+s=0), axial→pixel conversion, flood‑fill groups.
-- Unit tested: board generation, hex math, controller flows (JUnit 5).
+<!-- Drop your own banner or GIF here -->
+<!-- <img src="docs/hexoust-banner.png" width="860" alt="HexOust banner"/> -->
+<!-- <img src="docs/hexoust-demo.gif" width="860" alt="Gameplay demo"/> -->
 
-## How To Play
+</div>
 
-- Two players: RED goes first, then BLUE.
-- Place a piece on any highlighted cell. You cannot place next to your own piece unless the move captures.
-- When you place a piece, it forms or joins your connected group G. Any adjacent opponent group smaller than |G| is captured (removed). If any adjacent opponent group has size ≥ |G|, the move is invalid.
-- Capturing lets you play again immediately. If you have no valid moves, your turn automatically passes.
-- Win when your opponent owns no cells.
+## Why It Stands Out
 
-## Run It
+- Bold but compact: small codebase, clear responsibilities, readable logic.
+- Hex‑grid math: cube coordinates, neighbor vectors, axial→pixel layout.
+- Strong UX touches: valid‑move highlighting, crisp anti‑aliasing, subtle status/errors.
+- Tested behavior: controller flows, hex math, board invariants with JUnit 5.
+- Portfolio‑ready: showcases UI, algorithms, and design thinking in one place.
 
-Option A — Run the prebuilt JAR:
+## One‑Minute Tour
+
+1) RED starts. Valid cells glow subtly.  
+2) Place next to your own group only if the move captures.  
+3) Your group size is |G|. Any adjacent enemy group with size < |G| is captured (removed).  
+4) Capturing keeps your turn; otherwise turns alternate.  
+5) Win when your opponent has no owned cells.
+
+Tip: Play to create large connected shapes that can eat smaller neighboring groups.
+
+## Quick Start
+
+Run the prebuilt JAR:
 
 ```
 java -jar out/artifacts/HexOust43_jar/HexOust43.jar
 ```
 
-Option B — Run from source (IDE-friendly):
+Run from source (IDE):
 
-- Open the project in IntelliJ IDEA.
-- Run the `View.GUI` main class, or use the preconfigured Artifact (Build > Build Artifacts > HexOust43_jar > Build, then run the JAR).
+- Open in IntelliJ IDEA.
+- Run main class: `View.GUI`.
+- Or build artifact: Build > Build Artifacts > `HexOust43_jar` > Build, then run the JAR above.
 
-Option C — Compile via CLI:
+Run from CLI:
 
 ```
 javac -d out $(find src -name "*.java")
 java -cp out View.GUI
 ```
 
-## Tech Stack
+## Gameplay At A Glance
 
-- Java (Swing) for the desktop UI
-- JUnit 5 for unit tests
-- Simple MVC-style separation: Model (Board/Hexagon), Controller (rules), View (GUI)
+- Turn flow: RED → BLUE (repeat your turn on capture)
+- Valid move rule: placing next to your own piece must capture
+- Capture rule: remove adjacent enemy groups smaller than your placed group
+- No‑move pass: auto‑pass with a gentle status message
 
-## Project Structure
+## Screenshots / Demo
 
-- `src/View/GUI.java`: Anti‑aliased hex rendering, valid‑move shading, turn/win messaging; click handling wired to the controller.
-- `src/Controller/Controller.java`: Turn tracking, move validation, capture logic, pass handling, win detection.
-- `src/Model/Board.java`: Generates a base‑7 hexagon board (127 cells) and maps mouse clicks to hexes.
-- `src/Model/Hexagon.java`: Cube coordinates, neighbor/direction math, group helpers.
-- `src/Test/*.java`: JUnit tests for model and controller behavior.
-- `src/META-INF/MANIFEST.MF`: Main‑Class = `View.GUI` for runnable JARs.
+Placeholders are included below — swap with your own assets:
+
+<!-- ![Board](docs/screenshot-board.png) -->
+<!-- ![Capture](docs/screenshot-capture.png) -->
+<!-- ![Demo GIF](docs/hexoust-demo.gif) -->
+
+Suggested captures: normal board view, a capture moment, and a short 10–15s GIF.
+
+## Tech Highlights
+
+- `GUI.java`: Anti‑aliased rendering of a centered hex grid; valid‑move shading; turn/win messaging; click → controller pipeline.
+- `Controller.java`: Turn logic, move validation, size‑based group capture, pass handling, win detection.
+- `Board.java`: Generates a base‑7 hex board (127 cells) and maps pixel clicks to cells.
+- `Hexagon.java`: Cube coords `(q,r,s)`, neighbor/direction vectors, distance/length helpers.
+- Tests: Board shape invariants, hex math, and controller scenarios (JUnit 5).
+
+## Architecture Sketch
+
+```
+[ GUI (Swing) ]  ⇄  [ Controller (rules/state) ]  ⇄  [ Model (Board, Hexagon) ]
+     |                         |                               |
+  Mouse clicks            Valid moves,                   Grid generation,
+  + rendering            captures, turn                cube coords, neighbors
+```
 
 ## Design Notes
 
-- Coordinates: Uses cube coordinates with `q+r+s=0`; neighbor steps are predefined direction vectors.
-- Rendering: Axial→pixel conversion to center and draw a hex‑shaped grid; per‑cell fills and outlines for clarity.
-- Validation: Legal moves are precomputed; invalid placements show a concise message and do not alter state.
-- Captures: Flood‑fill gathers connected groups; adjacent opponent groups smaller than the placed group are removed. Captures retain the current turn; otherwise the turn switches.
-- UX details: Pass‑turn notices auto‑clear after a short delay; preventing accidental double‑placement on owned cells.
+- Math: cube coordinates enforce `q+r+s=0`; neighbor steps are predefined, making BFS/flood‑fill straightforward.
+- Rendering: axial→pixel conversion centers the grid; each cell is filled and outlined for contrast.
+- Validation: GUI queries `getValidMoves()`; invalid placements raise a concise message without mutating state.
+- Captures: flood‑fill collects your placed group; adjacent enemy groups smaller than your group are removed; capture repeats your turn.
+- UX: pass‑turn notices auto‑clear after a short delay to keep the UI calm and readable.
 
 ## Testing
 
-- Open `src/Test` in your IDE and run with JUnit 5.
+- Open `src/Test` and run with JUnit 5 (IDE recommended).
 - Coverage highlights:
-  - Board size and coordinate invariants (127 cells, q+r+s=0)
+  - Board size and coordinate invariants (127 cells, `q+r+s=0`)
   - Hex math (add/subtract, length, distance, directions/neighbors)
-  - Controller flows (turn switching, valid/invalid moves, capture + repeat turn, pass, win state)
+  - Controller flows (valid/invalid moves, captures with repeat turn, pass, win state)
 
-## Roadmap Ideas
+## Roadmap
 
-- AI opponent (greedy or Monte Carlo) with difficulty levels
-- Undo/redo and move history with PGN‑style export
-- Animated placements/captures and subtle sound effects
-- Variable board sizes and themes (color‑blind friendly palettes)
-- Online multiplayer (WebSocket) or local hot‑seat customizations
+- Solo play: heuristic AI (greedy first, deeper search later)
+- Undo/redo and move history
+- Animations and subtle SFX
+- Themes (including color‑blind friendly palettes)
+- Variable board sizes; challenge modes
+- Local hot‑seat polish and/or online multiplayer
 
-## Why This Project
+## Why This Project (CV Angle)
 
-HexOust is intentionally compact yet layered: it demonstrates UI work, domain modeling, search/graph mechanics (flood‑fill groups), careful rule validation, and pragmatic testing — a solid, portfolio‑friendly slice of real‑world Java.
+HexOust is deliberately tight in scope but rich in learning signals: it demonstrates UI craft, domain modeling, search/graph techniques (flood‑fill groups), careful rule validation, and disciplined tests. It’s a concise, memorable artifact for a portfolio or interview.
 
 ## License
 
