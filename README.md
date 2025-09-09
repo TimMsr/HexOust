@@ -4,12 +4,6 @@ A minimalist two‑player capture game on a hexagonal board, built with Java/Swi
 
 > TL;DR: Click to place pieces. Capture smaller adjacent enemy groups. Keep your turn on captures. Win when your opponent has no pieces left.
 
-## Screenshots
-
-<!-- Replace these with your own images or a GIF demo -->
-<!-- ![Board](docs/screenshot-board.png) -->
-<!-- ![Capture](docs/screenshot-capture.png) -->
-
 ## Features
 
 - Modern Swing UI: anti‑aliased hex grid with valid‑move highlighting.
@@ -85,9 +79,7 @@ java -cp out View.GUI
 - Variable board sizes and themes (color‑blind friendly palettes)
 - Online multiplayer (WebSocket) or local hot‑seat customizations
 
-## Why This Project
 
-HexOust is intentionally compact yet layered: it demonstrates UI work, domain modeling, search/graph mechanics (flood‑fill groups), careful rule validation, and pragmatic testing — a solid, portfolio‑friendly slice of real‑world Java.
 
 ## License
 
