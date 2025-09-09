@@ -122,6 +122,4 @@ Suggested captures: normal board view, a capture moment, and a short 10–15s GI
 
 HexOust is deliberately tight in scope but rich in learning signals: it demonstrates UI craft, domain modeling, search/graph techniques (flood‑fill groups), careful rule validation, and disciplined tests. It’s a concise, memorable artifact for a portfolio or interview.
 
-## License
 
-No license specified. If you intend to use or distribute this code, consider adding a license (MIT, Apache‑2.0, etc.).
