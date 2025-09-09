@@ -14,9 +14,7 @@
 
 <br>
 
-<!-- Drop your own banner or GIF here -->
-<!-- <img src="docs/hexoust-banner.png" width="860" alt="HexOust banner"/> -->
-<!-- <img src="docs/hexoust-demo.gif" width="860" alt="Gameplay demo"/> -->
+
 
 </div>
 
@@ -59,23 +57,6 @@ javac -d out $(find src -name "*.java")
 java -cp out View.GUI
 ```
 
-## Gameplay At A Glance
-
-- Turn flow: RED → BLUE (repeat your turn on capture)
-- Valid move rule: placing next to your own piece must capture
-- Capture rule: remove adjacent enemy groups smaller than your placed group
-- No‑move pass: auto‑pass with a gentle status message
-
-## Screenshots / Demo
-
-Placeholders are included below — swap with your own assets:
-
-<!-- ![Board](docs/screenshot-board.png) -->
-<!-- ![Capture](docs/screenshot-capture.png) -->
-<!-- ![Demo GIF](docs/hexoust-demo.gif) -->
-
-Suggested captures: normal board view, a capture moment, and a short 10–15s GIF.
-
 ## Tech Highlights
 
 - `GUI.java`: Anti‑aliased rendering of a centered hex grid; valid‑move shading; turn/win messaging; click → controller pipeline.
@@ -109,17 +90,6 @@ Suggested captures: normal board view, a capture moment, and a short 10–15s GI
   - Hex math (add/subtract, length, distance, directions/neighbors)
   - Controller flows (valid/invalid moves, captures with repeat turn, pass, win state)
 
-## Roadmap
 
-- Solo play: heuristic AI (greedy first, deeper search later)
-- Undo/redo and move history
-- Animations and subtle SFX
-- Themes (including color‑blind friendly palettes)
-- Variable board sizes; challenge modes
-- Local hot‑seat polish and/or online multiplayer
-
-## Why This Project (CV Angle)
-
-HexOust is deliberately tight in scope but rich in learning signals: it demonstrates UI craft, domain modeling, search/graph techniques (flood‑fill groups), careful rule validation, and disciplined tests. It’s a concise, memorable artifact for a portfolio or interview.
 
 
