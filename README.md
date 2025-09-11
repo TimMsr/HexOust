@@ -6,11 +6,10 @@
 [![Swing](https://img.shields.io/badge/UI-Swing-blue)](#)
 [![JUnit 5](https://img.shields.io/badge/Tests-JUnit%205-25a162?logo=junit5&logoColor=white)](#)
 [![MVC](https://img.shields.io/badge/Architecture-MVC-6f42c1)](#)
-[![Made%20with%20❤️](https://img.shields.io/badge/Made%20with-%E2%9D%A4%EF%B8%8F-brightgreen)](#)
 
 <br>
 
-🟦⬡⬡⬡🟥 HexOust blends a sleek hex‑grid UI with tight, well‑tested game logic. Click to place, capture smaller adjacent enemy groups, keep your turn on capture, and win when your opponent has no pieces left.
+HexOust blends a sleek hex‑grid UI with tight, well‑tested game logic. Click to place, capture smaller adjacent enemy groups, keep your turn on capture, and win when your opponent has no pieces left.
 
 <br>
 
@@ -90,6 +89,11 @@ java -cp out View.GUI
   - Hex math (add/subtract, length, distance, directions/neighbors)
   - Controller flows (valid/invalid moves, captures with repeat turn, pass, win state)
 
+## Contributors & Roles
+
+- Tim: Backend setup & hex‑grid math —  established cube coordinates, neighbor vectors, axial→pixel mapping, and core model/controller primitives.
+- Hubert: Testing— authored JUnit 5 tests covering board invariants, hex math, and controller flows.
+- Dan: Remaining implementation & polish  — UI (Swing), integration, packaging, and documentation touch‑ups.
 
 
 
